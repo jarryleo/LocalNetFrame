@@ -48,8 +48,12 @@ class DrawBoard : View {
     }
 
     private fun init() {
+        mColor = Color.BLACK
+        mStrokeWidth = 3.0f
         mPaint.color = mColor
         mPaint.strokeWidth = mStrokeWidth
+        mPaint.style = Paint.Style.STROKE
+        mPaint.strokeCap = Paint.Cap.ROUND
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -192,7 +196,8 @@ class DrawBoard : View {
      * 每个动作用竖线 | 分割  坐标用逗号 , 分割
      */
     private fun decode(code: String) {
-
+        //画笔还原
+        init()
         //清空画板
         drawBackGround(Color.WHITE)
         //分解动作

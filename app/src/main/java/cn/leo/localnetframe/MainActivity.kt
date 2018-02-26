@@ -1,5 +1,6 @@
 package cn.leo.localnetframe
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -14,6 +15,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, DrawBoard.OnDraw
         setContentView(R.layout.activity_main)
         btnOpenAp.setOnClickListener(this)
         drawBoard.onDrawListener = this
+
+        changeColor.setOnClickListener { drawBoard.setColor(Color.RED) }
+        changeSize.setOnClickListener { drawBoard.setStrokeWidth(15f) }
     }
 
     override fun onClick(v: View?) {
