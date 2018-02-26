@@ -1,4 +1,4 @@
-package cn.leo.localnetframe
+package cn.leo.localnetframe.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -29,10 +29,11 @@ class DrawBoard : View {
     private lateinit var mBitmap: Bitmap
     //图像文字编码
     private var bitmapCode: StringBuilder = StringBuilder()
+    //绘画回调
+    var onDrawListener: OnDrawListener? = null
 
     private var startX: Float = 0f
     private var startY: Float = 0f
-
     private var dis: Long = 0
 
 
@@ -89,6 +90,7 @@ class DrawBoard : View {
         when (event!!.action) {
             MotionEvent.ACTION_DOWN -> down(event.x, event.y)
             MotionEvent.ACTION_MOVE -> move(event.x, event.y)
+            MotionEvent.ACTION_UP -> getDraw()
         }
         return true
     }
@@ -141,7 +143,7 @@ class DrawBoard : View {
     /**
      * 显示图案
      */
-    private fun DrawBoard.show() {
+    private fun show() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             background = BitmapDrawable(null, mBitmap)
         } else {
@@ -155,10 +157,12 @@ class DrawBoard : View {
     /**
      *取出编码并传输
      */
-    fun getDraw() {
+    private fun getDraw() {
         dis = System.currentTimeMillis()
-
-        Log.e("code", "=${bitmapCode.length}")
+        Log.e("codeSize", "=${bitmapCode.length}")
+        if (onDrawListener != null) {
+            (onDrawListener as OnDrawListener).onDraw(bitmapCode.toString())
+        }
     }
 
     /**
@@ -175,6 +179,7 @@ class DrawBoard : View {
      * 接受数据还原画板
      */
     fun setBitmapCode(code: String) {
+        bitmapCode.delete(0, bitmapCode.length).append(code)
         decode(code)
     }
 
@@ -223,7 +228,12 @@ class DrawBoard : View {
                         }
                     }
                 }
+        dis = 0
         show() //展示还原的图案
+    }
+
+    interface OnDrawListener {
+        fun onDraw(code: String)
     }
 }
 

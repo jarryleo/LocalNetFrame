@@ -5,27 +5,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="cn.leo.localnetframe.MainActivity">
 
-    <cn.leo.localnetframe.DrawBoard
+    <cn.leo.localnetframe.view.DrawBoard
         android:id="@+id/drawBoard"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnOpenAp"
+        android:layout_height="200dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <cn.leo.localnetframe.view.DrawBoard
+        android:id="@+id/drawBoard1"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnOpenAp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/drawBoard"/>
 
     <Button
         android:id="@+id/btnOpenAp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OpenAp"
+        android:text="Undo"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/drawBoard"/>
+        />
 
 </android.support.constraint.ConstraintLayout>
