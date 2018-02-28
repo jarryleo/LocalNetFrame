@@ -7,7 +7,7 @@ import cn.leo.localnet.net.UdpFrame
  */
 class NetManager(private var listener: OnMsgArrivedListener) : UdpFrame.OnDataArrivedListener {
     private var udpFrame: UdpFrame? = null
-    var host: String = "127.0.0.7"
+    var host: String = "192.168.0.180"
 
     interface OnMsgArrivedListener {
         fun onMsgArrived(data: String)

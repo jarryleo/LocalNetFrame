@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, DrawBoard.OnDraw
 
     //接收数据
     override fun onMsgArrived(data: String) {
-        runOnUiThread { drawBoard1.setBitmapCode(data) }
+        runOnUiThread { drawBoard.setBitmapCode(data) }
     }
 
     override fun onDestroy() {

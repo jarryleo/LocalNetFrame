@@ -27,8 +27,12 @@ class DrawBoard : View {
     private lateinit var mCanvas: Canvas
     //图像
     private lateinit var mBitmap: Bitmap
+    //像素密度
+    private var density = resources.displayMetrics.density
+    //缩放等级(匹配不同机型的画板大小)
+    private var scale = 1.0f
     //图像文字编码
-    private var bitmapCode: StringBuilder = StringBuilder("I|")
+    private var bitmapCode: StringBuilder = StringBuilder("I$density|")
     //绘画回调
     var onDrawListener: OnDrawListener? = null
 
@@ -51,7 +55,7 @@ class DrawBoard : View {
         mColor = Color.BLACK
         mStrokeWidth = 3.0f
         mPaint.color = mColor
-        mPaint.strokeWidth = mStrokeWidth
+        mPaint.strokeWidth = mStrokeWidth * scale
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeCap = Paint.Cap.ROUND
         setBackgroundColor(Color.WHITE)
@@ -187,7 +191,7 @@ class DrawBoard : View {
      */
     fun clear() {
         bitmapCode.delete(0, bitmapCode.length)
-        bitmapCode.append("I|")
+        bitmapCode.append("I$density|")
         setBitmapCode(bitmapCode.toString())
     }
 
@@ -218,20 +222,25 @@ class DrawBoard : View {
                 .takeWhile { !it.isEmpty() }
                 .forEach {
                     when (it.first()) {
-                        'I' -> init()
+                        'I' -> {
+                            val d = it.substring(1).toFloat()
+                            scale = density / d
+                            init()
+                        }
                         'D' -> {
                             val point = it.substring(1)
                             val split = point.split(",")
                             startX = split[0].toFloat()
                             startY = split[1].toFloat()
-                            mCanvas.drawLine(startX, startY, startX + mStrokeWidth, startY, mPaint)
+                            mCanvas.drawLine(startX * scale, startY * scale,
+                                    (startX + mStrokeWidth) * scale, startY * scale, mPaint)
                         }
                         'M' -> {
                             val point = it.substring(1)
                             val split = point.split(",")
                             val a = split[0].toFloat()
                             val b = split[1].toFloat()
-                            mCanvas.drawLine(startX, startY, a, b, mPaint)
+                            mCanvas.drawLine(startX * scale, startY * scale, a * scale, b * scale, mPaint)
                             startX = a
                             startY = b
                         }
@@ -242,7 +251,7 @@ class DrawBoard : View {
                         }
                         'B' -> {
                             val b = it.substring(1)
-                            mStrokeWidth = b.toFloat()
+                            mStrokeWidth = b.toFloat() * scale
                             mPaint.strokeWidth = mStrokeWidth
                         }
                     }
