@@ -27,7 +27,6 @@ class PaintActivity : AppCompatActivity(), View.OnClickListener, DrawBoard.OnDra
         changeSize.setOnClickListener { drawBoard.setStrokeWidth(15f) }
 
         netManager = MyApplication.getNetManager(this)
-        netManager?.startNet()
 
         val localIpAddress = WifiLManager.getLocalIpAddress(this)
         Toast.makeText(this, localIpAddress, Toast.LENGTH_LONG).show()

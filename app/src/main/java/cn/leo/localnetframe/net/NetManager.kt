@@ -1,6 +1,10 @@
 package cn.leo.localnetframe.net
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import cn.leo.localnet.manager.WifiLManager
 import cn.leo.localnet.net.UdpFrame
@@ -22,7 +26,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         val ip = WifiLManager.getLocalIpAddress(context)
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
-        val lastIp = ip.substring(lastIndexOf)
+        val lastIp = ip.substring(lastIndexOf + 1)
         room.id = lastIp
         me = User(ip, "灵魂画手$lastIp")
     }
@@ -55,8 +59,23 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     override fun onDataArrived(data: ByteArray, length: Int, host: String) {
         this.host = host
         Log.d("host", host)
-        decode(data, length)
+        //decode(data, length)
+        val message = Message.obtain()
+        val bundle = Bundle()
+        bundle.putInt("length", length)
+        bundle.putByteArray("data", data)
+        message.data = bundle
+        handler.sendMessage(message)
     }
+
+    private val handler = Handler(Looper.getMainLooper()) {
+        val data = it.data
+        val length = data.getInt("length")
+        val byteArray = data.getByteArray("data")
+        decode(byteArray, length)
+        true
+    }
+
 
     fun sendData(data: ByteArray) {
         udpFrame!!.send(data, host)

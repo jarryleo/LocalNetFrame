@@ -9,17 +9,24 @@ import java.util.*
  */
 
 abstract class BaseRVAdapter<T> : RecyclerView.Adapter<BaseRVHolder<T>>() {
-    var mList: MutableList<T> = ArrayList()
+    var mList = ArrayList<T>()
 
-    fun setData(list: List<T>) {
+    fun setDatas(list: List<T>) {
         mList.clear()
         mList.addAll(list)
         notifyDataSetChanged()
     }
 
-    fun addData(list: List<T>) {
+    fun addDatas(list: List<T>) {
         mList.addAll(list)
         notifyDataSetChanged()
+    }
+
+    fun addData(t: T) {
+        if (!mList.contains(t)) {
+            mList.add(t)
+            notifyDataSetChanged()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): BaseRVHolder<T> {

@@ -23,6 +23,11 @@ class Room {
 
     fun getUserCount() = users.size
 
+    override fun equals(other: Any?): Boolean {
+        val o: Room = (other as? Room)!!
+        return o.id == id
+    }
+
     override fun toString(): String {
         return Gson().toJson(this)
     }

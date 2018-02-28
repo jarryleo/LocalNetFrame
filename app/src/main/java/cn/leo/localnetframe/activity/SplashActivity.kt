@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
     private var runnable = Runnable { openActivity() }
 
     private fun openActivity() {
-        startActivity(Intent(this, PaintActivity::class.java))
+        startActivity(Intent(this, RoomListActivity::class.java))
         finish()
     }
 
