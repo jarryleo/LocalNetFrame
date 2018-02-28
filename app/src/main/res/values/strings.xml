@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">LocalNetFrame</string>
+    <string name="app_name">你画我猜-WIFI版</string>
+    <string name="author_jarry_leo">author：Jarry Leo</string>
 </resources>

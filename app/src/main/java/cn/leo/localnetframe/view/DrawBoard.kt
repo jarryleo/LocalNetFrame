@@ -35,7 +35,8 @@ class DrawBoard : View {
     private var bitmapCode: StringBuilder = StringBuilder("I$density|")
     //绘画回调
     var onDrawListener: OnDrawListener? = null
-
+    //锁住画板
+    var lock = false
     private var startX: Float = 0f
     private var startY: Float = 0f
     private var dis: Long = 0
@@ -98,6 +99,7 @@ class DrawBoard : View {
      * 触摸动作处理
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (lock) return true
         when (event!!.action) {
             MotionEvent.ACTION_DOWN -> down(event.x, event.y)
             MotionEvent.ACTION_MOVE -> move(event.x, event.y)
@@ -221,39 +223,43 @@ class DrawBoard : View {
         code.split("|")
                 .takeWhile { !it.isEmpty() }
                 .forEach {
-                    when (it.first()) {
-                        'I' -> {
-                            val d = it.substring(1).toFloat()
-                            scale = density / d
-                            init()
+                    try {
+                        when (it.first()) {
+                            'I' -> {
+                                val d = it.substring(1).toFloat()
+                                scale = density / d
+                                init()
+                            }
+                            'D' -> {
+                                val point = it.substring(1)
+                                val split = point.split(",")
+                                startX = split[0].toFloat()
+                                startY = split[1].toFloat()
+                                mCanvas.drawLine(startX * scale, startY * scale,
+                                        (startX + mStrokeWidth) * scale, startY * scale, mPaint)
+                            }
+                            'M' -> {
+                                val point = it.substring(1)
+                                val split = point.split(",")
+                                val a = split[0].toFloat()
+                                val b = split[1].toFloat()
+                                mCanvas.drawLine(startX * scale, startY * scale, a * scale, b * scale, mPaint)
+                                startX = a
+                                startY = b
+                            }
+                            'C' -> {
+                                val color = it.substring(1)
+                                mColor = color.toInt()
+                                mPaint.color = mColor
+                            }
+                            'B' -> {
+                                val b = it.substring(1)
+                                mStrokeWidth = b.toFloat() * scale
+                                mPaint.strokeWidth = mStrokeWidth
+                            }
                         }
-                        'D' -> {
-                            val point = it.substring(1)
-                            val split = point.split(",")
-                            startX = split[0].toFloat()
-                            startY = split[1].toFloat()
-                            mCanvas.drawLine(startX * scale, startY * scale,
-                                    (startX + mStrokeWidth) * scale, startY * scale, mPaint)
-                        }
-                        'M' -> {
-                            val point = it.substring(1)
-                            val split = point.split(",")
-                            val a = split[0].toFloat()
-                            val b = split[1].toFloat()
-                            mCanvas.drawLine(startX * scale, startY * scale, a * scale, b * scale, mPaint)
-                            startX = a
-                            startY = b
-                        }
-                        'C' -> {
-                            val color = it.substring(1)
-                            mColor = color.toInt()
-                            mPaint.color = mColor
-                        }
-                        'B' -> {
-                            val b = it.substring(1)
-                            mStrokeWidth = b.toFloat() * scale
-                            mPaint.strokeWidth = mStrokeWidth
-                        }
+                    } catch (e: Exception) {
+                        //不处理
                     }
                 }
         dis = 0

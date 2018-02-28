@@ -3,19 +3,38 @@
           package="cn.leo.localnetframe">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <activity
+            android:name=".activity.SplashActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!--游戏窗口-->
+        <activity
+            android:name=".activity.PaintActivity"
+            android:configChanges="screenSize|orientation|keyboardHidden"
+            android:screenOrientation="portrait"/>
+        <!--房间列表-->
+        <activity
+            android:name=".activity.RoomListActivity"
+            android:screenOrientation="portrait"/>
+        <!--房间-->
+        <activity
+            android:name=".activity.RoomActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
