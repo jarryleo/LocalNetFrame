@@ -28,7 +28,7 @@ class DrawBoard : View {
     //图像
     private lateinit var mBitmap: Bitmap
     //图像文字编码
-    private var bitmapCode: StringBuilder = StringBuilder()
+    private var bitmapCode: StringBuilder = StringBuilder("I|")
     //绘画回调
     var onDrawListener: OnDrawListener? = null
 
@@ -54,13 +54,16 @@ class DrawBoard : View {
         mPaint.strokeWidth = mStrokeWidth
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeCap = Paint.Cap.ROUND
+        setBackgroundColor(Color.WHITE)
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        mBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.RGB_565)
-        mCanvas = Canvas(mBitmap)
-        drawBackGround(Color.WHITE)
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            mBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.RGB_565)
+            mCanvas = Canvas(mBitmap)
+            drawBackGround(Color.WHITE)
+        }
     }
 
     /**
@@ -180,6 +183,15 @@ class DrawBoard : View {
     }
 
     /**
+     * 清空画板
+     */
+    fun clear() {
+        bitmapCode.delete(0, bitmapCode.length)
+        bitmapCode.append("I|")
+        setBitmapCode(bitmapCode.toString())
+    }
+
+    /**
      * 接受数据还原画板
      */
     fun setBitmapCode(code: String) {
@@ -189,6 +201,7 @@ class DrawBoard : View {
 
     /**
      * 解码：
+     * I  清空
      * D  下笔
      * M  移动
      * C  颜色
@@ -205,6 +218,7 @@ class DrawBoard : View {
                 .takeWhile { !it.isEmpty() }
                 .forEach {
                     when (it.first()) {
+                        'I' -> init()
                         'D' -> {
                             val point = it.substring(1)
                             val split = point.split(",")

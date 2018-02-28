@@ -5,9 +5,13 @@ import cn.leo.localnet.net.UdpFrame
 /**
  * Created by Leo on 2018/2/27.
  */
-class NetManager : UdpFrame.OnDataArrivedListener {
-    private  var udpFrame: UdpFrame? = null
+class NetManager(private var listener: OnMsgArrivedListener) : UdpFrame.OnDataArrivedListener {
+    private var udpFrame: UdpFrame? = null
+    var host: String = "127.0.0.7"
 
+    interface OnMsgArrivedListener {
+        fun onMsgArrived(data: String)
+    }
 
     fun startNet() {
         if (udpFrame == null) {
@@ -16,12 +20,15 @@ class NetManager : UdpFrame.OnDataArrivedListener {
         }
     }
 
+    fun stopNet() = this.udpFrame?.stopNet()
+
     override fun onDataArrived(data: ByteArray, length: Int, host: String) {
+        this.host = host
         decode(data, length)
     }
 
     fun sendData(data: ByteArray) {
-        //udpFrame.send(data)
+        udpFrame!!.send(data, host)
     }
 
 
@@ -37,6 +44,7 @@ class NetManager : UdpFrame.OnDataArrivedListener {
      */
     fun decode(data: ByteArray, length: Int) {
         val str = String(data, 0, length)
+        listener.onMsgArrived(str)
         when (str.first()) {
             'C' -> {
 
