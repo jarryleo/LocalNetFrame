@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.widget.Toast
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.UserListAdapter
@@ -26,8 +27,13 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         val room = intent.getParcelableExtra<Room>("room")
         if (room != null) {
             netManager.joinRoom(room)
+            if (netManager.isGaming()) {
+                title = getString(R.string.room_id, netManager.getMeRoomId()) + "(游戏中)"
+                btnStartGame.text = "加入游戏"
+            }
+        } else {
+            title = getString(R.string.room_id, netManager.getMeRoomId())
         }
-        title = getString(R.string.room_id, netManager.getMeRoomId())
     }
 
     override fun onRestart() {
@@ -37,23 +43,48 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
 
     private fun initView() {
         adapter = UserListAdapter()
-        netManager.getRoomUsers().forEach {
-            adapter?.addData(it)
-        }
+        refreshUsers()
         rvUserList.layoutManager =
                 GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         rvUserList.adapter = adapter
+        btnStartGame.setOnClickListener {
+            startGame()
+        }
+    }
 
-        btnStartGame.setOnClickListener { startActivity(Intent(this, PaintActivity::class.java)) }
+    private fun refreshUsers() {
+        adapter?.clearData()
+        netManager.getRoomUsers().forEach {
+            adapter?.addData(it)
+        }
+    }
+
+    private fun startGame() {
+        if (netManager.isGaming()) {
+            startActivity(Intent(this, PaintActivity::class.java))
+        } else if (netManager.getRoomUsers().size > 1) {
+            if (netManager.isAdmin()) {
+                //发送开始游戏指令
+                netManager.startGame()
+                startActivity(Intent(this, PaintActivity::class.java))
+            } else {
+                Toast.makeText(this, "排在第一位置的人才能开始游戏", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "最少两人才能开始游戏", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onMsgArrived(data: String) {
         when (data.first()) {
             'J' -> {
-                adapter?.notifyDataSetChanged()
+                refreshUsers()
             }
             'E' -> {
-                adapter?.notifyDataSetChanged()
+                refreshUsers()
+            }
+            'S' -> {
+                startActivity(Intent(this, PaintActivity::class.java))
             }
             else -> {
 
@@ -64,7 +95,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
     override fun onBackPressed() {
         super.onBackPressed()
         //退出房间
-        //netManager.exitRoom()
+        netManager.exitRoom()
     }
 
 

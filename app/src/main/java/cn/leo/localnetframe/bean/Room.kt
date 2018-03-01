@@ -9,11 +9,17 @@ import java.util.*
  * Created by Leo on 2018/2/28.
  */
 class Room() : Parcelable {
+    //房间ID
     var id = "0"
+    //房间状态 0 等待开始游戏 1 正在游戏
+    var state = 0
+    //房间内用户列表
     var users = Collections.synchronizedList(ArrayList<User>())
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
+        state = parcel.readInt()
+        parcel.readList(users, this.javaClass.classLoader)
     }
 
     fun addUser(user: User) {
@@ -40,6 +46,8 @@ class Room() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
+        parcel.writeInt(state)
+        parcel.writeList(users)
     }
 
     override fun describeContents(): Int {

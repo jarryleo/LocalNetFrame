@@ -148,10 +148,36 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     }
 
     /**
+     * 判断自己是不是房主(列表第一人才有权开始游戏)
+     */
+    fun isAdmin(): Boolean = room.users.indexOf(me) == 0
+
+    /**
+     * 判断是否正在游戏中
+     */
+    fun isGaming(): Boolean = room.state == 1
+
+    /**
+     * 开始游戏
+     */
+    fun startGame() {
+        room.state = 1
+        sendData("S".toByteArray())
+    }
+
+    /**
+     * 游戏结束
+     */
+    fun stopGame() {
+        room.state = 0
+    }
+
+    /**
      * 解码信息
      * F 查找房间
      * R 返回房间信息
-     * J 加入房间
+     * J 申请加入房间
+     * S 开始游戏
      * E 退出房间
      * C 聊天
      * P 画画
