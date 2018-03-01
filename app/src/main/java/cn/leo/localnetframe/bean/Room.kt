@@ -30,7 +30,7 @@ class Room() : Parcelable {
         }
     }
 
-    //用户李凯房间
+    //用户离开房间
     fun removeUser(user: User) {
         users.remove(user)
     }
@@ -43,6 +43,7 @@ class Room() : Parcelable {
         return o.id == id
     }
 
+    //对象转json
     override fun toString(): String {
         return Gson().toJson(this)
     }

@@ -105,7 +105,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      */
     fun sendData(data: ByteArray) {
         room.users
-                .takeWhile { it.ip != me.ip }
+                .filterNot { it.ip == me.ip }
                 .forEach { udpFrame!!.send(data, it.ip) }
     }
 
