@@ -58,54 +58,58 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
         //缓存数据
         val cache = ArrayList<ByteArray>()
         while (true) {
-            receiveSocket.receive(dp)
-            //检查数据包头部
-            val head = ByteArray(2)
-            val body = ByteArray(dp.length - 2)
-            //取出头部
-            System.arraycopy(data, 0, head, 0, head.size)
-            //取出数据体
-            System.arraycopy(data, 2, body, 0, body.size)
-            //安全退出
-            if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
-                break
-            }
-            //数据只有1个包
-            if (head[0] == 1.toByte()) {
-                //数据回调给上层协议层
-                mOnDataArrivedListener.onDataArrived(body, body.size,
-                        dp.address.hostAddress)
-            } else {
-                //新的数据包组到来清空缓存
-                if (head[1] == 1.toByte()) {
-                    cache.clear()
+            try {
+                receiveSocket.receive(dp)
+                //检查数据包头部
+                val head = ByteArray(2)
+                val body = ByteArray(dp.length - 2)
+                //取出头部
+                System.arraycopy(data, 0, head, 0, head.size)
+                //取出数据体
+                System.arraycopy(data, 2, body, 0, body.size)
+                //安全退出
+                if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
+                    break
                 }
-                //缓存数据包(漏数据包则不缓存)
-                if (cache.size + 1 == head[1].toInt()) {
-                    cache.add(body)
-                }
-                //多个数据到达完成则拼接
-                if (head[0] == head[1]) {
-                    //数据包完整的话
-                    if (cache.size == head[0].toInt()) {
-                        //开始组装数据
-                        //获取数据总长度
-                        val dataLength = cache.sumBy { it.size }
-                        val sumData = ByteArray(dataLength)
-                        //已经拼接长度
-                        var length = 0
-                        for (bytes in cache) {
-                            System.arraycopy(bytes, 0, sumData, length, bytes.size)
-                            length += bytes.size
+                //数据只有1个包
+                if (head[0] == 1.toByte()) {
+                    //数据回调给上层协议层
+                    mOnDataArrivedListener.onDataArrived(body, body.size,
+                            dp.address.hostAddress)
+                } else {
+                    //新的数据包组到来清空缓存
+                    if (head[1] == 1.toByte()) {
+                        cache.clear()
+                    }
+                    //缓存数据包(漏数据包则不缓存)
+                    if (cache.size + 1 == head[1].toInt()) {
+                        cache.add(body)
+                    }
+                    //多个数据到达完成则拼接
+                    if (head[0] == head[1]) {
+                        //数据包完整的话
+                        if (cache.size == head[0].toInt()) {
+                            //开始组装数据
+                            //获取数据总长度
+                            val dataLength = cache.sumBy { it.size }
+                            val sumData = ByteArray(dataLength)
+                            //已经拼接长度
+                            var length = 0
+                            for (bytes in cache) {
+                                System.arraycopy(bytes, 0, sumData, length, bytes.size)
+                                length += bytes.size
+                            }
+                            //数据回调给上层协议层
+                            mOnDataArrivedListener.onDataArrived(sumData, sumData.size,
+                                    dp.address.hostAddress)
+                        } else {
+                            //数据包不完整
+                            Log.e("udp", " -- data is incomplete")
                         }
-                        //数据回调给上层协议层
-                        mOnDataArrivedListener.onDataArrived(sumData, sumData.size,
-                                dp.address.hostAddress)
-                    } else {
-                        //数据包不完整
-                        Log.e("udp", " -- data is incomplete")
                     }
                 }
+            } catch (e: Exception) {
+
             }
         }
         receiveSocket.disconnect()
@@ -142,7 +146,11 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
             System.arraycopy(data, sendLength, pack, head.size, pack.size - head.size)
             //发送小包
             val dp = DatagramPacket(pack, pack.size, ia)
-            sendSocket.send(dp)
+            try {
+                sendSocket.send(dp)
+            } catch (e: Exception) {
+
+            }
             sendLength += pack.size - 2
         }
     }

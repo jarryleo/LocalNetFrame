@@ -19,6 +19,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     private var room: Room = Room()
     private var me: User
     private var preIp: String
+    private var lastIp: String
     private var udpFrame: UdpFrame? = null
     private var host: String = "192.168.0.180"
 
@@ -26,7 +27,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         val ip = WifiLManager.getLocalIpAddress(context)
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
-        val lastIp = ip.substring(lastIndexOf + 1)
+        lastIp = ip.substring(lastIndexOf + 1)
         room.id = lastIp
         me = User(ip, "灵魂画手$lastIp")
     }
@@ -121,6 +122,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      */
     fun createRoom() {
         room = Room()
+        room.id = lastIp
         room.addUser(me)
     }
 
