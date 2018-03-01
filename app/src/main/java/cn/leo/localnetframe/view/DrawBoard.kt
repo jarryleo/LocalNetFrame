@@ -54,7 +54,7 @@ class DrawBoard : View {
 
     private fun init() {
         mColor = Color.BLACK
-        mStrokeWidth = 3.0f
+        mStrokeWidth = 3.0f * density
         mPaint.color = mColor
         mPaint.strokeWidth = mStrokeWidth * scale
         mPaint.style = Paint.Style.STROKE

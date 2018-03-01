@@ -29,6 +29,11 @@ abstract class BaseRVAdapter<T> : RecyclerView.Adapter<BaseRVHolder<T>>() {
         }
     }
 
+    fun clearData() {
+        mList.clear()
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): BaseRVHolder<T> {
         return getViewHolder(parent, viewType)
     }

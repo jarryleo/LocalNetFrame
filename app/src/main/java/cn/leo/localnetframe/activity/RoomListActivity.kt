@@ -1,8 +1,12 @@
 package cn.leo.localnetframe.activity
 
+import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.view.Gravity
+import android.widget.Toast
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.RoomListAdapter
@@ -19,21 +23,47 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         setContentView(R.layout.activity_room_list)
         MyApplication.getNetManager(this)
         netManager = MyApplication.getNetManager(this)
-
-        fab.setOnClickListener { view ->
-            netManager?.createRoom()
-            Snackbar.make(view, "创建房间成功", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-
         initView()
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        netManager = MyApplication.getNetManager(this)
+    }
+
     private fun initView() {
-        swipeRefresh.setOnRefreshListener { netManager?.findRoom() }
+        fab.setOnClickListener {
+            netManager?.createRoom()
+            Toast.makeText(this, "创建房间成功，房间号${netManager?.getMeRoomId()}", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
+        }
+
         adapter = RoomListAdapter()
+        swipeRefresh.setOnRefreshListener {
+            adapter?.clearData()
+            netManager?.findRoom()
+            refresh()
+        }
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = adapter
+
         netManager?.findRoom()
+        swipeRefresh.isRefreshing = true
+        refresh()
+    }
+
+    private fun refresh() {
+        handler.postDelayed(runnable, 5000)
+    }
+
+    private val handler = Handler()
+    private val runnable = Runnable {
+        if (swipeRefresh.isRefreshing) {
+            swipeRefresh.isRefreshing = false
+            val toast = Toast.makeText(this, "没有搜索到房间，请重试或者创建房间", Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.show()
+        }
     }
 
     override fun onMsgArrived(data: String) {
@@ -47,6 +77,7 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
                 adapter?.addData(room)
             }
             else -> {
+
             }
         }
     }

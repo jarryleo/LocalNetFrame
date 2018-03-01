@@ -8,24 +8,25 @@
     app:cardUseCompatPadding="true"
     app:contentPadding="16dp">
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvRoomId"
+            android:id="@+id/tvName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/room_id"
+            android:text="@string/user_name"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"/>
 
         <TextView
-            android:id="@+id/tvUserCount"
+            android:id="@+id/tvIp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/user_count"
+            android:text="@string/id_address"
             app:layout_constraintTop_toBottomOf="@+id/tvRoomId"/>
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 </android.support.v7.widget.CardView>

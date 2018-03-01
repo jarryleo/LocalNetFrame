@@ -31,6 +31,10 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         me = User(ip, "灵魂画手$lastIp")
     }
 
+    interface OnMsgArrivedListener {
+        fun onMsgArrived(data: String)
+    }
+
     /**
      * 设置自己的昵称
      */
@@ -38,15 +42,26 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         me.name = name
     }
 
+    /**
+     * 获取我的房间id
+     */
+    fun getMeRoomId() = room.id
 
-    interface OnMsgArrivedListener {
-        fun onMsgArrived(data: String)
-    }
+    /**
+     *获取房间内用户列表
+     */
+    fun getRoomUsers() = room.users
 
+    /**
+     * 设置数据回调监听
+     */
     fun setDataListener(listener: OnMsgArrivedListener) {
         this.listener = listener
     }
 
+    /**
+     * 开启网络服务
+     */
     fun startNet() {
         if (udpFrame == null) {
             udpFrame = UdpFrame(this)
@@ -54,8 +69,14 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         }
     }
 
+    /**
+     * 停止网络服务
+     */
     fun stopNet() = this.udpFrame?.stopNet()
 
+    /**
+     * 底层网络数据返回
+     */
     override fun onDataArrived(data: ByteArray, length: Int, host: String) {
         this.host = host
         Log.d("host", host)
@@ -68,6 +89,9 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         handler.sendMessage(message)
     }
 
+    /**
+     * 返回的数据在子线程，这里切换到主线程
+     */
     private val handler = Handler(Looper.getMainLooper()) {
         val data = it.data
         val length = data.getInt("length")
@@ -76,8 +100,19 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         true
     }
 
-
+    /**
+     * 发送数据到房间内其他人
+     */
     fun sendData(data: ByteArray) {
+        room.users
+                .takeWhile { it.ip != me.ip }
+                .forEach { udpFrame!!.send(data, it.ip) }
+    }
+
+    /**
+     * 发送数据给指定目标
+     */
+    fun sendData(data: ByteArray, host: String) {
         udpFrame!!.send(data, host)
     }
 
@@ -99,7 +134,17 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 申请加入房间
      */
     fun joinRoom(room: Room) {
+        this.room = room
         room.users.forEach { udpFrame!!.send("J${me.name}".toByteArray(), it.ip) }
+        room.addUser(me)
+    }
+
+    /**
+     * 退出房间
+     */
+    fun exitRoom() {
+        room.removeUser(me)
+        sendData("E".toByteArray())
     }
 
     /**
@@ -107,6 +152,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * F 查找房间
      * R 返回房间信息
      * J 加入房间
+     * E 退出房间
      * C 聊天
      * P 画画
      * H 心跳
@@ -117,13 +163,20 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
 
         when (str.first()) {
             'F' -> {
-                sendData(("R" + room.toString()).toByteArray())
+                if (room.users.size > 0) {
+                    sendData(("R" + room.toString()).toByteArray(), host)
+                }
             }
             'H' -> {
                 room.users.takeWhile { it.ip == host }.forEach { it.heart = 0 }
             }
             'J' -> {
                 room.addUser(User(host, str.substring(1)))
+                listener?.onMsgArrived(str)
+            }
+            'E' -> {
+                room.removeUser(User(host, str.substring(1)))
+                listener?.onMsgArrived(str)
             }
             else -> {
                 listener?.onMsgArrived(str)
