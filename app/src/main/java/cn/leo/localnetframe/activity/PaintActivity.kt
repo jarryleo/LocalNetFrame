@@ -20,6 +20,12 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         drawBoard.onDrawListener = this
         netManager = MyApplication.getNetManager(this)
         initView()
+        checkPlayer()
+    }
+
+    //检查谁在作画
+    private fun checkPlayer() {
+        drawBoard.lock = !netManager?.isMePlaying()!!
     }
 
     private fun initView() {

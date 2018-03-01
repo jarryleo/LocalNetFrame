@@ -13,12 +13,15 @@ class Room() : Parcelable {
     var id = "0"
     //房间状态 0 等待开始游戏 1 正在游戏
     var state = 0
+    //正在画画的玩家序号
+    var painter = 0
     //房间内用户列表
     var users = Collections.synchronizedList(ArrayList<User>())
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
         state = parcel.readInt()
+        painter = parcel.readInt()
         parcel.readList(users, this.javaClass.classLoader)
     }
 
@@ -51,6 +54,7 @@ class Room() : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeInt(state)
+        parcel.writeInt(painter)
         parcel.writeList(users)
     }
 

@@ -173,7 +173,7 @@ class DrawBoard : View {
     private fun getDraw() {
         dis = System.currentTimeMillis()
         Log.e("codeSize", "=${bitmapCode.length}")
-        if (onDrawListener != null) {
+        if (onDrawListener != null && !lock) {
             (onDrawListener as OnDrawListener).onDraw(bitmapCode.toString())
         }
     }

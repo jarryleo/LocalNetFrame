@@ -162,6 +162,11 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     fun isGaming(): Boolean = room.state == 1
 
     /**
+     * 是否是我在画画
+     */
+    fun isMePlaying(): Boolean = room.users[room.painter] == me
+
+    /**
      * 开始游戏
      */
     fun startGame() {
