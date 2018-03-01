@@ -22,6 +22,7 @@ class Room() : Parcelable {
         parcel.readList(users, this.javaClass.classLoader)
     }
 
+    //用户进入房间
     fun addUser(user: User) {
         val has = users.find { it.ip == user.ip }
         if (has == null) {
@@ -29,10 +30,12 @@ class Room() : Parcelable {
         }
     }
 
+    //用户李凯房间
     fun removeUser(user: User) {
         users.remove(user)
     }
 
+    //房间内用户数
     fun getUserCount() = users.size
 
     override fun equals(other: Any?): Boolean {

@@ -31,6 +31,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
                 title = getString(R.string.room_id, netManager.getMeRoomId()) + "(游戏中)"
                 btnStartGame.text = "加入游戏"
             }
+            refreshUsers()
         } else {
             title = getString(R.string.room_id, netManager.getMeRoomId())
         }
@@ -66,6 +67,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
             if (netManager.isAdmin()) {
                 //发送开始游戏指令
                 netManager.startGame()
+                //跳转到游戏界面
                 startActivity(Intent(this, PaintActivity::class.java))
             } else {
                 Toast.makeText(this, "排在第一位置的人才能开始游戏", Toast.LENGTH_SHORT).show()
