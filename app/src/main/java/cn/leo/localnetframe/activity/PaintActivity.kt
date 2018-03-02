@@ -61,7 +61,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             //如果是我在画画，把信息发给其他人，自己添加到聊天栏
             if (netManager.isMePlaying()) {
                 showMsg(msg)
-                netManager.sendData(("C" + msg.toString()).toByteArray())
+                netManager.sendData("C" + msg.toString())
             } else {
                 //如果是别人在画画，把消息发给画画的人
                 netManager.sendToPainter(("C" + msg.toString()).toByteArray())
@@ -108,11 +108,10 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
                     }
                     //转发聊天信息
-                    netManager.sendData(("C" + msgBean.toString()).toByteArray())
-                } else {
-                    //直接展示聊天内容
-                    showMsg(msgBean)
+                    netManager.sendData("C" + msgBean.toString())
                 }
+                //展示聊天内容
+                showMsg(msgBean)
             }
             'P' -> {
                 //画画数据

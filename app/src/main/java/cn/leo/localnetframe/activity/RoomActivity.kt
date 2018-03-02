@@ -27,11 +27,11 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         val room = intent.getParcelableExtra<Room>("room")
         if (room != null) {
             netManager.joinRoom(room)
+            refreshUsers()
             if (netManager.isGaming()) {
                 title = getString(R.string.room_id, netManager.getMeRoomId()) + "(游戏中)"
                 btnStartGame.text = "加入游戏"
             }
-            refreshUsers()
         } else {
             title = getString(R.string.room_id, netManager.getMeRoomId())
         }

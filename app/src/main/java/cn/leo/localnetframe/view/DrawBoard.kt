@@ -1,12 +1,8 @@
 package cn.leo.localnetframe.view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -78,7 +74,6 @@ class DrawBoard : View {
         if (changed) {
             mBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.RGB_565)
             mCanvas = Canvas(mBitmap)
-            drawBackGround((background as? ColorDrawable)?.color!!)
         }
     }
 
@@ -230,7 +225,7 @@ class DrawBoard : View {
         //画笔还原
         init()
         //清空画板
-        drawBackGround((background as? ColorDrawable)?.color!!)
+        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         //分解动作
         code.split("|")
                 .takeWhile { !it.isEmpty() }

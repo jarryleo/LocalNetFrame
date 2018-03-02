@@ -105,6 +105,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     fun createRoom() {
         clearRoom()
         room.addUser(me)
+        sendData(("R" + room.toString()).toByteArray(), preIp + ".255")
     }
 
     /**
@@ -127,7 +128,6 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 退出房间
      */
     fun exitRoom() {
-        clearRoom()
         sendData("E".toByteArray())
         stopGame()
     }
@@ -159,7 +159,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 游戏结束
      */
     fun stopGame() {
-        room.state = 0
+        clearRoom()
     }
 
     /**
