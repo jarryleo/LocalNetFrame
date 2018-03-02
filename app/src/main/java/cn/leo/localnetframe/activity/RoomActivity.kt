@@ -74,6 +74,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
             }
         } else {
             Toast.makeText(this, "最少两人才能开始游戏", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, PaintActivity::class.java))
         }
     }
 

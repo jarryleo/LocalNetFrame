@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -32,7 +33,7 @@ class DrawBoard : View {
     //缩放等级(匹配不同机型的画板大小)
     private var scale = 1.0f
     //图像文字编码
-    private var bitmapCode: StringBuilder = StringBuilder("I$density|")
+    private var bitmapCode: StringBuilder = StringBuilder()
     //绘画回调
     var onDrawListener: OnDrawListener? = null
     //锁住画板
@@ -40,6 +41,7 @@ class DrawBoard : View {
     private var startX: Float = 0f
     private var startY: Float = 0f
     private var dis: Long = 0
+    private var mWidth: Int = 0
 
 
     //构造
@@ -59,7 +61,16 @@ class DrawBoard : View {
         mPaint.strokeWidth = mStrokeWidth * scale
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeCap = Paint.Cap.ROUND
-        setBackgroundColor(Color.WHITE)
+        //setBackgroundColor(Color.WHITE)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val mWidth = MeasureSpec.getSize(widthMeasureSpec)
+        val spec = MeasureSpec.makeMeasureSpec(mWidth, MeasureSpec.EXACTLY)
+        if (bitmapCode.isEmpty()) {
+            bitmapCode.append("I$mWidth|")
+        }
+        super.onMeasure(widthMeasureSpec, spec)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -67,7 +78,7 @@ class DrawBoard : View {
         if (changed) {
             mBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.RGB_565)
             mCanvas = Canvas(mBitmap)
-            drawBackGround(Color.WHITE)
+            drawBackGround((background as? ColorDrawable)?.color!!)
         }
     }
 
@@ -193,7 +204,8 @@ class DrawBoard : View {
      */
     fun clear() {
         bitmapCode.delete(0, bitmapCode.length)
-        bitmapCode.append("I$density|")
+        //bitmapCode.append("I$density|")
+        bitmapCode.append("I$mWidth|")
         setBitmapCode(bitmapCode.toString())
     }
 
@@ -218,7 +230,7 @@ class DrawBoard : View {
         //画笔还原
         init()
         //清空画板
-        drawBackGround(Color.WHITE)
+        drawBackGround((background as? ColorDrawable)?.color!!)
         //分解动作
         code.split("|")
                 .takeWhile { !it.isEmpty() }
@@ -227,7 +239,7 @@ class DrawBoard : View {
                         when (it.first()) {
                             'I' -> {
                                 val d = it.substring(1).toFloat()
-                                scale = density / d
+                                scale = mWidth / d
                                 init()
                             }
                             'D' -> {

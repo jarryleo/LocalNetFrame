@@ -6,10 +6,14 @@ import android.os.Parcelable
 /**
  * Created by Leo on 2018/2/28.
  */
-data class User(var ip: String, var name: String, var heart: Int = 0) :Parcelable {
+data class User(var ip: String,
+                var name: String,
+                var heart: Int = 0,
+                var score: Int = 0) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
+            parcel.readInt(),
             parcel.readInt())
 
     override fun equals(other: Any?): Boolean {
@@ -21,6 +25,7 @@ data class User(var ip: String, var name: String, var heart: Int = 0) :Parcelabl
         parcel.writeString(ip)
         parcel.writeString(name)
         parcel.writeInt(heart)
+        parcel.writeInt(score)
     }
 
     override fun describeContents(): Int {

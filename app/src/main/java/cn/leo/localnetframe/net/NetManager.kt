@@ -21,17 +21,30 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     private var preIp: String
     private var lastIp: String
     private var udpFrame: UdpFrame? = null
-    private var host: String = "192.168.0.180"
+    private var host: String = "127.0.0.1"
 
     init {
         val ip = WifiLManager.getLocalIpAddress(context)
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
         lastIp = ip.substring(lastIndexOf + 1)
-        room.id = lastIp
         me = User(ip, "灵魂画手$lastIp")
+        clearRoom()
     }
 
+    /**
+     * 打扫房间
+     */
+    private fun clearRoom() {
+        room.users.clear()
+        room.id = lastIp
+        room.state = 0
+        room.painter = 0
+    }
+
+    /**
+     * 数据接收回调接口
+     */
     interface OnMsgArrivedListener {
         fun onMsgArrived(data: String)
     }
@@ -44,6 +57,11 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     }
 
     /**
+     *获取自己的昵称
+     */
+    fun getMeName() = me.name
+
+    /**
      * 获取我的房间id
      */
     fun getMeRoomId() = room.id
@@ -52,6 +70,11 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      *获取房间内用户列表
      */
     fun getRoomUsers() = room.users
+
+    /**
+     * 获取当前画画的人
+     */
+    fun getRoomPainter() = room.users[room.painter]
 
     /**
      * 设置数据回调监听
@@ -74,6 +97,100 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 停止网络服务
      */
     fun stopNet() = this.udpFrame?.stopNet()
+
+
+    /**
+     * 创建房间
+     */
+    fun createRoom() {
+        clearRoom()
+        room.addUser(me)
+    }
+
+    /**
+     * 查找房间
+     */
+    fun findRoom() {
+        udpFrame!!.send("F".toByteArray(), preIp + ".255")
+    }
+
+    /**
+     * 申请加入房间
+     */
+    fun joinRoom(room: Room) {
+        this.room = room
+        room.users.forEach { udpFrame!!.send("J${me.name}".toByteArray(), it.ip) }
+        room.addUser(me)
+    }
+
+    /**
+     * 退出房间
+     */
+    fun exitRoom() {
+        clearRoom()
+        sendData("E".toByteArray())
+        stopGame()
+    }
+
+    /**
+     * 判断自己是不是房主(列表第一人才有权开始游戏)
+     */
+    fun isAdmin(): Boolean = room.users.indexOf(me) == 0
+
+    /**
+     * 判断是否正在游戏中
+     */
+    fun isGaming(): Boolean = room.state == 1
+
+    /**
+     * 是否是我在画画
+     */
+    fun isMePlaying(): Boolean = getRoomPainter() == me
+
+    /**
+     * 开始游戏
+     */
+    fun startGame() {
+        room.state = 1
+        sendData("S".toByteArray())
+    }
+
+    /**
+     * 游戏结束
+     */
+    fun stopGame() {
+        room.state = 0
+    }
+
+    /**
+     * 发送数据到房间内其他人
+     */
+    fun sendData(data: ByteArray) {
+        room.users
+                .filterNot { it.ip == me.ip }
+                .forEach { udpFrame!!.send(data, it.ip) }
+    }
+
+    /**
+     * 发送文本信息
+     */
+    fun sendData(data: String) {
+        sendData(data.toByteArray())
+    }
+
+    /**
+     * 发送数据给指定目标
+     */
+    fun sendData(data: ByteArray, host: String) {
+        udpFrame!!.send(data, host)
+    }
+
+    /**
+     * 发送数据给画画的人
+     */
+    fun sendToPainter(data: ByteArray) {
+        udpFrame!!.send(data, getRoomPainter().ip)
+    }
 
     /**
      * 底层网络数据返回
@@ -101,85 +218,6 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         true
     }
 
-    /**
-     * 发送数据到房间内其他人
-     */
-    fun sendData(data: ByteArray) {
-        room.users
-                .filterNot { it.ip == me.ip }
-                .forEach { udpFrame!!.send(data, it.ip) }
-    }
-
-    /**
-     * 发送数据给指定目标
-     */
-    fun sendData(data: ByteArray, host: String) {
-        udpFrame!!.send(data, host)
-    }
-
-    /**
-     * 创建房间
-     */
-    fun createRoom() {
-        room = Room()
-        room.id = lastIp
-        room.addUser(me)
-    }
-
-    /**
-     * 查找房间
-     */
-    fun findRoom() {
-        udpFrame!!.send("F".toByteArray(), preIp + ".255")
-    }
-
-    /**
-     * 申请加入房间
-     */
-    fun joinRoom(room: Room) {
-        this.room = room
-        room.users.forEach { udpFrame!!.send("J${me.name}".toByteArray(), it.ip) }
-        room.addUser(me)
-    }
-
-    /**
-     * 退出房间
-     */
-    fun exitRoom() {
-        room.removeUser(me)
-        sendData("E".toByteArray())
-        stopGame()
-    }
-
-    /**
-     * 判断自己是不是房主(列表第一人才有权开始游戏)
-     */
-    fun isAdmin(): Boolean = room.users.indexOf(me) == 0
-
-    /**
-     * 判断是否正在游戏中
-     */
-    fun isGaming(): Boolean = room.state == 1
-
-    /**
-     * 是否是我在画画
-     */
-    fun isMePlaying(): Boolean = room.users[room.painter] == me
-
-    /**
-     * 开始游戏
-     */
-    fun startGame() {
-        room.state = 1
-        sendData("S".toByteArray())
-    }
-
-    /**
-     * 游戏结束
-     */
-    fun stopGame() {
-        room.state = 0
-    }
 
     /**
      * 解码信息
