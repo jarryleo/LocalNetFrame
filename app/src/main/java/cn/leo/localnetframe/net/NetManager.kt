@@ -260,6 +260,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      */
     private fun decode(data: ByteArray, length: Int, host: String) {
         val str = String(data, 0, length)
+        Log.e("receive = ", str.first().toString())
         when (str.first()) {
             'F' -> {
                 if (room.users.size > 0) {
