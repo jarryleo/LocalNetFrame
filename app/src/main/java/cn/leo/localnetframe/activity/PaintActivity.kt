@@ -49,8 +49,12 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         }
 
         override fun onTick(millisUntilFinished: Long) {
+            if (millisUntilFinished / 1000 == 70L) {
+                //发送第一个提示，几个字
+                netManager.sendData("T${word.length}个字")
+            }
             if (millisUntilFinished / 1000 == 40L) {
-                //多一个提示
+                //发送第二个提示
                 netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
             }
             if (millisUntilFinished / 1000 == 5L) {
@@ -87,8 +91,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             word = wordChooser?.getWord()!!
             //展示词汇
             tvTitle.text = word
-            //发送第一个提示，几个字
-            netManager.sendData("T${word.length}个字")
             //开始倒计时
             countDownTimer.start()
             //通知其他人清空上次画画的内容,并同步倒计时
@@ -208,8 +210,9 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                         msgBean.msg = "猜对了！"
                         msgBean.isAnswer = true
                         //给答对的人加分，并把分数共享给其他人
-                        val userStr = netManager.getSendMsgUser(host)?.apply { this.score += 1 }.toString()
-                        netManager.sendData("U" + userStr)
+                        val user = netManager.getSendMsgUser(host)!!
+                        user.score += 1
+                        netManager.sendData("U" + user.toString())
                         refreshUsers()
                     }
                     //转发聊天信息
