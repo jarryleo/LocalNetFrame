@@ -46,6 +46,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             netManager.nextPainter()
             hideAnswer()
             drawBoard.clear()
+            checkPlayer()
         }
 
         override fun onTick(millisUntilFinished: Long) {

@@ -28,6 +28,7 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
     override fun onRestart() {
         super.onRestart()
         netManager = MyApplication.getNetManager(this)
+        refresh()
     }
 
     private fun initView() {

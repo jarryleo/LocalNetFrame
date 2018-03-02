@@ -288,6 +288,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
                 } else {
                     room.painter + 1
                 }
+                listener?.onMsgArrived(str, host)
             }
             else -> {
                 listener?.onMsgArrived(str, host)
