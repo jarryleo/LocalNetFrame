@@ -26,6 +26,7 @@
             android:name=".activity.PaintActivity"
             android:configChanges="screenSize|orientation|keyboardHidden"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <!-- 房间列表 -->
         <activity

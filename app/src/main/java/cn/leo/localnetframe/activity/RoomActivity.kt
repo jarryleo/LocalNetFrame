@@ -78,7 +78,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         }
     }
 
-    override fun onMsgArrived(data: String) {
+    override fun onMsgArrived(data: String, host: String) {
         when (data.first()) {
             'J' -> {
                 refreshUsers()

@@ -10,6 +10,7 @@ import cn.leo.localnet.manager.WifiLManager
 import cn.leo.localnet.net.UdpFrame
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
+import com.google.gson.Gson
 
 /**
  * Created by Leo on 2018/2/27.
@@ -21,7 +22,6 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     private var preIp: String
     private var lastIp: String
     private var udpFrame: UdpFrame? = null
-    private var host: String = "127.0.0.1"
 
     init {
         val ip = WifiLManager.getLocalIpAddress(context)
@@ -46,7 +46,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 数据接收回调接口
      */
     interface OnMsgArrivedListener {
-        fun onMsgArrived(data: String)
+        fun onMsgArrived(data: String, host: String)
     }
 
     /**
@@ -55,6 +55,11 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     fun setMeName(name: String) {
         me.name = name
     }
+
+    /**
+     * 获取我的对象
+     */
+    fun getMe() = me
 
     /**
      *获取自己的昵称
@@ -75,6 +80,11 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 获取当前画画的人
      */
     fun getRoomPainter() = room.users[room.painter]
+
+    /**
+     * 找到刚刚发消息的人(没进入房间的找不到)
+     */
+    fun getSendMsgUser(host: String) = getRoomUsers().find { it.ip == host }
 
     /**
      * 设置数据回调监听
@@ -128,7 +138,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 退出房间
      */
     fun exitRoom() {
-        sendData("E".toByteArray())
+        sendData("E")
         stopGame()
     }
 
@@ -152,7 +162,19 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      */
     fun startGame() {
         room.state = 1
-        sendData("S".toByteArray())
+        sendData("S")
+    }
+
+    /**
+     * 下一个玩家开始
+     */
+    fun nextPainter() {
+        room.painter = if (room.painter >= room.users.size) {
+            0
+        } else {
+            room.painter + 1
+        }
+        sendData("N")
     }
 
     /**
@@ -196,11 +218,10 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 底层网络数据返回
      */
     override fun onDataArrived(data: ByteArray, length: Int, host: String) {
-        this.host = host
         Log.d("host", host)
-        //decode(data, length)
         val message = Message.obtain()
         val bundle = Bundle()
+        bundle.putString("host", host)
         bundle.putInt("length", length)
         bundle.putByteArray("data", data)
         message.data = bundle
@@ -212,28 +233,33 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      */
     private val handler = Handler(Looper.getMainLooper()) {
         val data = it.data
+        val host = data.getString("host")
         val length = data.getInt("length")
         val byteArray = data.getByteArray("data")
-        decode(byteArray, length)
+        decode(byteArray, length, host)
         true
     }
 
 
     /**
      * 解码信息
+     * A 显示答案
      * F 查找房间
      * R 返回房间信息
      * J 申请加入房间
      * S 开始游戏
+     * U 同步积分
+     * T 提示内容
+     * D 倒计时
      * E 退出房间
+     * N 下一个开始游戏
      * C 聊天
      * P 画画
      * H 心跳
      * 其它 包括 房间信息分布记录，分数记录等再考虑
      */
-    private fun decode(data: ByteArray, length: Int) {
+    private fun decode(data: ByteArray, length: Int, host: String) {
         val str = String(data, 0, length)
-
         when (str.first()) {
             'F' -> {
                 if (room.users.size > 0) {
@@ -245,14 +271,26 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
             }
             'J' -> {
                 room.addUser(User(host, str.substring(1)))
-                listener?.onMsgArrived(str)
+                listener?.onMsgArrived(str, host)
             }
             'E' -> {
                 room.removeUser(User(host, str.substring(1)))
-                listener?.onMsgArrived(str)
+                listener?.onMsgArrived(str, host)
+            }
+            'U' -> {
+                val user = Gson().fromJson<User>(str.substring(1), User::class.java)
+                getRoomUsers().find { it.ip == user.ip }?.score = user.score
+                listener?.onMsgArrived(str, host)
+            }
+            'N' -> {
+                room.painter = if (room.painter >= room.users.size) {
+                    0
+                } else {
+                    room.painter + 1
+                }
             }
             else -> {
-                listener?.onMsgArrived(str)
+                listener?.onMsgArrived(str, host)
             }
         }
     }

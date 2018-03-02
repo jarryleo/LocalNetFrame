@@ -1,6 +1,8 @@
 package cn.leo.localnetframe.activity
 
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import cn.leo.localnet.utils.ToastUtilK
@@ -9,6 +11,7 @@ import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.MsgListAdapter
 import cn.leo.localnetframe.bean.Msg
 import cn.leo.localnetframe.net.NetManager
+import cn.leo.localnetframe.utils.WordChooser
 import cn.leo.localnetframe.view.DrawBoard
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
@@ -17,8 +20,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
     private var chatAdapter: MsgListAdapter? = null
     private var userAdapter: MsgListAdapter? = null
+    private var wordChooser: WordChooser? = null
     private lateinit var netManager: NetManager
     private var word: String = "测试"
+    private var isMePaint: Boolean = false
+    private var showAnswerDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +32,68 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         drawBoard.onDrawListener = this
         netManager = MyApplication.getNetManager(this)
         initView()
-        checkPlayer()
+        initData()
     }
 
-    //检查谁在作画
+    private fun initData() {
+        wordChooser = WordChooser(this)
+        refreshUsers()
+    }
+
+    private val countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
+        override fun onFinish() {
+            //下一个玩家开局
+            netManager.nextPainter()
+            hideAnswer()
+            drawBoard.clear()
+        }
+
+        override fun onTick(millisUntilFinished: Long) {
+            if (millisUntilFinished / 1000 == 40L) {
+                //多一个提示
+                netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
+            }
+            if (millisUntilFinished / 1000 == 5L) {
+                netManager.sendData("A" + word)
+            }
+            //倒计时
+            val time = millisUntilFinished / 1000 - 5
+            //预留5秒显示答案
+            if (time >= 0L) {
+                showCountDown(time.toString())
+                //同步倒计时
+                netManager.sendData("D" + time)
+                if (time == 0L) {
+                    //公布结果
+                    showAnswer(word)
+                }
+            }
+        }
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        countDownTimer.cancel()
+    }
+
+    //检查现在是谁在作画
     private fun checkPlayer() {
+        if (!isMePaint && netManager.isMePlaying()) {
+            //轮到我画画
+            isMePaint = netManager.isMePlaying()
+            //准备我画画的工作
+            //获取要画的词汇
+            word = wordChooser?.getWord()!!
+            //展示词汇
+            tvTitle.text = word
+            //发送第一个提示，几个字
+            netManager.sendData("T${word.length}个字")
+            //开始倒计时
+            countDownTimer.start()
+            //通知其他人清空上次画画的内容,并同步倒计时
+            netManager.sendData("P")
+        }
         drawBoard.lock = !netManager.isMePlaying()
     }
 
@@ -41,7 +104,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         rvUserScoreList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         rvMsgList.adapter = chatAdapter
         rvUserScoreList.adapter = userAdapter
-        refreshUsers()
         //发送消息按钮
         btnSendMsg.setOnClickListener {
             sendMsgClick()
@@ -76,6 +138,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             val score = Msg(it.name, it.score.toString())
             userAdapter?.addData(score)
         }
+        checkPlayer()
     }
 
     /**
@@ -86,13 +149,53 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         rvMsgList.smoothScrollToPosition(chatAdapter?.itemCount!!)
     }
 
-    //发送数据
+    /**
+     * 显示答案
+     */
+    private fun showAnswer(answer: String) {
+        if (showAnswerDialog == null) {
+            showAnswerDialog = AlertDialog.Builder(this)
+                    .setTitle("答案是：")
+                    .setMessage(answer)
+                    .show()
+        } else {
+            showAnswerDialog?.setMessage(answer)
+            showAnswerDialog?.show()
+        }
+    }
+
+    /**
+     * 隐藏答案
+     */
+    private fun hideAnswer() {
+        if (showAnswerDialog != null) {
+            if (showAnswerDialog?.isShowing!!) {
+                showAnswerDialog?.hide()
+            }
+        }
+    }
+
+    /**
+     * 显示提示信息
+     */
+    private fun showTips(tips: String) {
+        tvTitle.text = tips
+    }
+
+    /**
+     * 显示倒计时
+     */
+    private fun showCountDown(time: String) {
+        tvTimer.text = time
+    }
+
+    //发送画板数据
     override fun onDraw(code: String) {
-        netManager.sendData(("P" + code).toByteArray())
+        netManager.sendData("P" + code)
     }
 
     //接收数据
-    override fun onMsgArrived(data: String) {
+    override fun onMsgArrived(data: String, host: String) {
         when (data.first()) {
             'C' -> {
                 //聊天数据
@@ -104,8 +207,10 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                     if (msgBean.msg == word) {
                         msgBean.msg = "猜对了！"
                         msgBean.isAnswer = true
-                        //给答对的人加分，并把分数共享给其他人 TODO
-
+                        //给答对的人加分，并把分数共享给其他人
+                        val userStr = netManager.getSendMsgUser(host)?.apply { this.score += 1 }.toString()
+                        netManager.sendData("U" + userStr)
+                        refreshUsers()
                     }
                     //转发聊天信息
                     netManager.sendData("C" + msgBean.toString())
@@ -119,13 +224,29 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                     drawBoard.setBitmapCode(data)
                 }
             }
-            'E' -> {
+            'E', 'U' -> {
+                //退出，同步积分，下一个人开始游戏
                 refreshUsers()
+            }
+            'N' -> {
+                hideAnswer()
+                refreshUsers()
+            }
+            'A' -> {
+                //显示答案
+                showAnswer(data.substring(1))
+            }
+            'T' -> {
+                //提示内容
+                showTips(data.substring(1))
+            }
+            'D' -> {
+                //倒计时
+                showCountDown(data.substring(1))
             }
             else -> {
 
             }
         }
-
     }
 }

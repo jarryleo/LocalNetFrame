@@ -63,8 +63,7 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         }
     }
 
-    override fun onMsgArrived(data: String) {
-
+    override fun onMsgArrived(data: String, host: String) {
         swipeRefresh.isRefreshing = false
         when (data.first()) {
             'R' -> {
