@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.view.Gravity
-import android.widget.Toast
+import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.RoomListAdapter
@@ -34,7 +33,7 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
     private fun initView() {
         fab.setOnClickListener {
             netManager?.createRoom()
-            Toast.makeText(this, "创建房间成功，房间号${netManager?.getMeRoomId()}", Toast.LENGTH_SHORT).show()
+            ToastUtilK.show(this, "创建房间成功，房间号${netManager?.getMeRoomId()}")
             startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
         }
 
@@ -60,9 +59,7 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
     private val runnable = Runnable {
         if (swipeRefresh.isRefreshing) {
             swipeRefresh.isRefreshing = false
-            val toast = Toast.makeText(this, "没有搜索到房间，请重试或者创建房间", Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.show()
+            ToastUtilK.show(this, "没有搜索到房间，请重试或者创建房间")
         }
     }
 

@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
-import android.widget.Toast
+import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.UserListAdapter
@@ -70,10 +70,10 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
                 //跳转到游戏界面
                 startActivity(Intent(this, PaintActivity::class.java))
             } else {
-                Toast.makeText(this, "排在第一位置的人才能开始游戏", Toast.LENGTH_SHORT).show()
+                ToastUtilK.show(this, "排在第一位置的人才能开始游戏")
             }
         } else {
-            Toast.makeText(this, "最少两人才能开始游戏", Toast.LENGTH_SHORT).show()
+            ToastUtilK.show(this, "最少两人才能开始游戏")
             startActivity(Intent(this, PaintActivity::class.java))
         }
     }
