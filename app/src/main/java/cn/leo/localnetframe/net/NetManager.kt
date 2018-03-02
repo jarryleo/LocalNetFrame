@@ -138,8 +138,8 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 退出房间
      */
     fun exitRoom() {
+        clearRoom()
         sendData("E")
-        stopGame()
     }
 
     /**
@@ -169,7 +169,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 下一个玩家开始
      */
     fun nextPainter() {
-        room.painter = if (room.painter >= room.users.size) {
+        room.painter = if (room.painter >= room.users.size - 1) {
             0
         } else {
             room.painter + 1
@@ -181,7 +181,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 游戏结束
      */
     fun stopGame() {
-        clearRoom()
+        room.state = 0
     }
 
     /**
@@ -285,7 +285,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
                 listener?.onMsgArrived(str, host)
             }
             'N' -> {
-                room.painter = if (room.painter >= room.users.size) {
+                room.painter = if (room.painter >= room.users.size - 1) {
                     0
                 } else {
                     room.painter + 1

@@ -23,10 +23,8 @@ abstract class BaseRVAdapter<T> : RecyclerView.Adapter<BaseRVHolder<T>>() {
     }
 
     fun addData(t: T) {
-        if (!mList.contains(t)) {
-            mList.add(t)
-            notifyDataSetChanged()
-        }
+        mList.add(t)
+        notifyDataSetChanged()
     }
 
     fun clearData() {

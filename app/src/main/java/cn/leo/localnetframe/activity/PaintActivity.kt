@@ -22,6 +22,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
     private var chatAdapter: MsgListAdapter? = null
     private var userAdapter: MsgListAdapter? = null
     private var wordChooser: WordChooser? = null
+    private var countDownTimer: CountDownTimer? = null
     private lateinit var netManager: NetManager
     private var word: String = "测试"
     private var isMePaint: Boolean = false
@@ -41,45 +42,50 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         wordChooser = WordChooser(this)
         refreshUsers()
     }
+    //倒计时
+    private fun countDown(){
+        countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
+            override fun onFinish() {
+                nextPlayer()
+            }
 
-    private val countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
-        override fun onFinish() {
-            nextPlayer()
-        }
-
-        override fun onTick(millisUntilFinished: Long) {
-            if (millisUntilFinished / 1000 == 70L) {
-                //发送第一个提示，几个字
-                netManager.sendData("T${word.length}个字")
-            }
-            if (millisUntilFinished / 1000 == 40L) {
-                //发送第二个提示
-                netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
-            }
-            if (millisUntilFinished / 1000 == 5L) {
-                netManager.sendData("A" + word)
-            }
-            //倒计时
-            val time = millisUntilFinished / 1000 - 5
-            //预留5秒显示答案
-            if (time >= 0L) {
-                showCountDown(time.toString())
-                //同步倒计时
-                netManager.sendData("D" + time)
-                if (time == 0L) {
-                    //公布结果
-                    showAnswer(word)
+            override fun onTick(millisUntilFinished: Long) {
+                val sec = millisUntilFinished / 1000
+                if (sec in 40L..70L) {
+                    //发送第一个提示，几个字
+                    netManager.sendData("T${word.length}个字")
+                }
+                if (sec in 5L..40L) {
+                    //发送第二个提示
+                    netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
+                }
+                if (sec == 5L) {
+                    netManager.sendData("A" + word)
+                }
+                //倒计时
+                val time = sec - 5
+                //预留5秒显示答案
+                if (time >= 0L) {
+                    showCountDown(time.toString())
+                    //同步倒计时
+                    netManager.sendData("D" + time)
+                    if (time == 0L) {
+                        //公布结果
+                        showAnswer(word)
+                    }
                 }
             }
         }
-
+        countDownTimer?.start()
     }
 
     /**
      *游戏绘画全力转移到下一个玩家
      */
     private fun nextPlayer() {
-        countDownTimer.cancel()
+        tvTitle.text = resources.getText(R.string.app_name)
+        isMePaint = false
+        countDownTimer?.cancel()
         rightUsers.clear()
         netManager.nextPainter()
         hideAnswer()
@@ -89,7 +95,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
     override fun onDestroy() {
         super.onDestroy()
-        countDownTimer.cancel()
+        countDownTimer?.cancel()
+        netManager.stopGame()
     }
 
     //检查现在是谁在作画
@@ -99,11 +106,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             isMePaint = netManager.isMePlaying()
             //准备我画画的工作
             //获取要画的词汇
-            word = wordChooser?.getWord()!!
+            word = wordChooser?.chooseWord()?.getWord()!!
             //展示词汇
             tvTitle.text = word
             //开始倒计时
-            countDownTimer.start()
+            countDown()
             //通知其他人清空上次画画的内容,并同步倒计时
             netManager.sendData("P")
         }
@@ -214,6 +221,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                 //聊天数据
                 val msg = data.substring(1)
                 val msgBean = Gson().fromJson<Msg>(msg, Msg::class.java)
+                var allRight = false
                 //处理聊天数据
                 if (netManager.isMePlaying()) {
                     //我在画画，负责判断答案，然后转发聊天信息，是答案的话，掩盖后载转发
@@ -230,7 +238,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                             rightUsers.add(user)
                             if (rightUsers.size >= netManager.getRoomUsers().size - 1) {
                                 //每个人都答对了下一个玩家开始游戏
-                                nextPlayer()
+                                allRight = true
                             }
                         }
                     }
@@ -239,11 +247,15 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                 }
                 //展示聊天内容
                 showMsg(msgBean)
+                //下一个玩家开始游戏
+                if(allRight){
+                    nextPlayer()
+                }
             }
             'P' -> {
                 //画画数据
                 if (!netManager.isMePlaying()) {
-                    drawBoard.setBitmapCode(data)
+                    drawBoard.setBitmapCode(data.substring(1))
                 }
             }
             'E', 'U' -> {
@@ -253,6 +265,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             'N' -> {
                 hideAnswer()
                 refreshUsers()
+                drawBoard.clear()
             }
             'A' -> {
                 //显示答案

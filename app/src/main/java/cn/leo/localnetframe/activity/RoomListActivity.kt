@@ -77,7 +77,9 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
                 //返回一个房间json
                 val json = data.substring(1)
                 val room = Gson().fromJson<Room>(json, Room::class.java)
-                adapter?.addData(room)
+                if (!adapter?.mList?.contains(room)!!) {
+                    adapter?.addData(room)
+                }
             }
             else -> {
 

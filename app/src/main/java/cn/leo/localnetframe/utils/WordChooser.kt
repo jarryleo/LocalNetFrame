@@ -25,7 +25,7 @@ class WordChooser(val context: Context) {
     /**
      * 随机选择一个词汇
      */
-    private fun chooseWord() = apply { mWord = words[Random().nextInt(words.size)] }
+    fun chooseWord() = apply { mWord = words[Random().nextInt(words.size)] }
 
     /**
      * 获取词汇

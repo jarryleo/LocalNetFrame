@@ -66,7 +66,7 @@ class DrawBoard : View {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val mWidth = MeasureSpec.getSize(widthMeasureSpec)
+        mWidth = MeasureSpec.getSize(widthMeasureSpec)
         val spec = MeasureSpec.makeMeasureSpec(mWidth, MeasureSpec.EXACTLY)
         if (bitmapCode.isEmpty()) {
             bitmapCode.append("I$mWidth|")
