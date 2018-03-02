@@ -30,9 +30,9 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
         handlerThread.start()
         sendHandler = Handler(handlerThread.looper) {
             val data = it.data
-            val host = data.get("host")
+            val host = data.getString("host")
             val byteArray = data.getByteArray("data")
-            sendData(byteArray, host as String)
+            sendData(byteArray, host)
             true
         }
     }
@@ -149,7 +149,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
             try {
                 sendSocket.send(dp)
             } catch (e: Exception) {
-
+                e.printStackTrace()
             }
             sendLength += pack.size - 2
         }

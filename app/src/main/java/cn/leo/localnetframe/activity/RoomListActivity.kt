@@ -28,7 +28,8 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
     override fun onRestart() {
         super.onRestart()
         netManager = MyApplication.getNetManager(this)
-        refresh()
+        adapter?.clearData()
+        netManager?.findRoom()
     }
 
     private fun initView() {
@@ -62,6 +63,11 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
             swipeRefresh.isRefreshing = false
             ToastUtilK.show(this, "没有搜索到房间，请重试或者创建房间")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(runnable)
     }
 
     override fun onMsgArrived(data: String, host: String) {

@@ -263,6 +263,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
         when (str.first()) {
             'F' -> {
                 if (room.users.size > 0) {
+                    Log.e("host = ", host)
                     sendData(("R" + room.toString()).toByteArray(), host)
                 }
             }
