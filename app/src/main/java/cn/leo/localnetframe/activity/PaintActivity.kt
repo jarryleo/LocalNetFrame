@@ -107,6 +107,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                         //给答对的人加分，并把分数共享给其他人 TODO
 
                     }
+                    //转发聊天信息
                     netManager.sendData(("C" + msgBean.toString()).toByteArray())
                 } else {
                     //直接展示聊天内容
