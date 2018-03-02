@@ -10,6 +10,7 @@ import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.MsgListAdapter
 import cn.leo.localnetframe.bean.Msg
+import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetManager
 import cn.leo.localnetframe.utils.WordChooser
 import cn.leo.localnetframe.view.DrawBoard
@@ -25,6 +26,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
     private var word: String = "测试"
     private var isMePaint: Boolean = false
     private var showAnswerDialog: AlertDialog? = null
+    private var rightUsers = ArrayList<User>() //答对的人
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +44,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
     private val countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
         override fun onFinish() {
-            //下一个玩家开局
-            netManager.nextPainter()
-            hideAnswer()
-            drawBoard.clear()
-            checkPlayer()
+            nextPlayer()
         }
 
         override fun onTick(millisUntilFinished: Long) {
@@ -75,6 +73,18 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             }
         }
 
+    }
+
+    /**
+     *游戏绘画全力转移到下一个玩家
+     */
+    private fun nextPlayer() {
+        countDownTimer.cancel()
+        rightUsers.clear()
+        netManager.nextPainter()
+        hideAnswer()
+        drawBoard.clear()
+        checkPlayer()
     }
 
     override fun onDestroy() {
@@ -215,6 +225,14 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                         user.score += 1
                         netManager.sendData("U" + user.toString())
                         refreshUsers()
+                        //统计答对人数
+                        if (!rightUsers.contains(user)) {
+                            rightUsers.add(user)
+                            if (rightUsers.size >= netManager.getRoomUsers().size - 1) {
+                                //每个人都答对了下一个玩家开始游戏
+                                nextPlayer()
+                            }
+                        }
                     }
                     //转发聊天信息
                     netManager.sendData("C" + msgBean.toString())
