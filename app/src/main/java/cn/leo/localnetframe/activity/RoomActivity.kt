@@ -37,7 +37,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         }
     }
 
-    override fun onRestart() {
+    override fun onRestart() {0
         super.onRestart()
         netManager = MyApplication.getNetManager(this)
     }

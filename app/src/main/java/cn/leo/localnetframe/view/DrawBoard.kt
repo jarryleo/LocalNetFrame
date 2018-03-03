@@ -99,7 +99,7 @@ class DrawBoard : View {
      * 设置笔迹粗细
      */
     fun setStrokeWidth(width: Float) {
-        mStrokeWidth = width
+        mStrokeWidth = width * density
         mPaint.strokeWidth = mStrokeWidth
         //动作编码
         bitmapCode.append("B")

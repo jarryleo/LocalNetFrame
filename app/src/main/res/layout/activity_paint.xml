@@ -30,11 +30,19 @@
             android:textSize="14dp"/>
     </RelativeLayout>
     <!--画板-->
-    <cn.leo.localnetframe.view.DrawBoard
-        android:id="@+id/drawBoard"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"/>
+        android:layout_height="wrap_content">
+
+        <cn.leo.localnetframe.view.DrawBoard
+            android:id="@+id/drawBoard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"/>
+
+        <include layout="@layout/layout_color_palette"/>
+    </RelativeLayout>
+
     <!--玩家列表+积分面板-->
     <LinearLayout
         android:layout_width="match_parent"

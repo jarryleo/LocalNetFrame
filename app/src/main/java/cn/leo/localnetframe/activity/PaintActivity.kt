@@ -13,12 +13,16 @@ import cn.leo.localnetframe.bean.Msg
 import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetManager
 import cn.leo.localnetframe.utils.WordChooser
+import cn.leo.localnetframe.view.ColorCircle
 import cn.leo.localnetframe.view.DrawBoard
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
+import kotlinx.android.synthetic.main.layout_color_palette.*
 
-class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.OnMsgArrivedListener {
+class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.OnMsgArrivedListener, ColorCircle.OnColorClickListener {
 
+    private var widthPixels: Int = 0
+    private var density: Float = 0f
     private var chatAdapter: MsgListAdapter? = null
     private var userAdapter: MsgListAdapter? = null
     private var wordChooser: WordChooser? = null
@@ -42,8 +46,9 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         wordChooser = WordChooser(this)
         refreshUsers()
     }
+
     //倒计时
-    private fun countDown(){
+    private fun countDown() {
         countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
             override fun onFinish() {
                 nextPlayer()
@@ -128,6 +133,52 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         btnSendMsg.setOnClickListener {
             sendMsgClick()
         }
+
+        //调色板位置
+        widthPixels = resources.displayMetrics.widthPixels
+        density = resources.displayMetrics.density
+        hideColorLens()
+        btnColorLens.setOnClickListener {
+            if (llColorLens.x + llColorLens.width <= widthPixels) {
+                hideColorLens()
+            } else {
+                showColorLens()
+            }
+        }
+        //调色板按钮
+        cc1.setOnColorClickListener(this)
+        cc2.setOnColorClickListener(this)
+        cc3.setOnColorClickListener(this)
+        cc4.setOnColorClickListener(this)
+        cc5.setOnColorClickListener(this)
+        cc6.setOnColorClickListener(this)
+        cc7.setOnColorClickListener(this)
+        cc8.setOnColorClickListener(this)
+        cc9.setOnColorClickListener(this)
+        cc10.setOnColorClickListener(this)
+        cc11.setOnColorClickListener(this)
+        cc12.setOnColorClickListener(this)
+        btnUndo.setOnClickListener { drawBoard.undo() }
+        btnUndo.setOnLongClickListener { drawBoard.clear(); true }
+        cc01.setOnClickListener { drawBoard.setStrokeWidth(3f);hideColorLens() }
+        cc02.setOnClickListener { drawBoard.setStrokeWidth(5f);hideColorLens() }
+        cc03.setOnClickListener { drawBoard.setStrokeWidth(7f);hideColorLens() }
+    }
+
+    //点击颜色
+    override fun onColorClick(color: Int) {
+        drawBoard.setColor(color)
+        hideColorLens()
+    }
+
+    //显示调色板
+    private fun showColorLens() {
+        llColorLens.x = (widthPixels - llColorLens.width).toFloat()
+    }
+
+    //隐藏调色板
+    private fun hideColorLens() {
+        llColorLens.x = widthPixels - (40 * density)
     }
 
     //点击发送消息执行逻辑
@@ -248,7 +299,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                 //展示聊天内容
                 showMsg(msgBean)
                 //下一个玩家开始游戏
-                if(allRight){
+                if (allRight) {
                     nextPlayer()
                 }
             }

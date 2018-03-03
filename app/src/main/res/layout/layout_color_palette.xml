@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/llColorLens"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/btnColorLens"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/ic_color_lens"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FF9999"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#666666"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FFFFFF"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc4"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#000000"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc5"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FF0033"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc6"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FF9900"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc7"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FFFF00"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc8"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#33CC33"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc9"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#0099CC"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc10"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#003399"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc11"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#9933CC"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc12"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:color="#FF6666"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/btnUndo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_action_name"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc01"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:size="1dp"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc02"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:size="2dp"/>
+
+            <cn.leo.localnetframe.view.ColorCircle
+                android:id="@+id/cc03"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:size="3dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
