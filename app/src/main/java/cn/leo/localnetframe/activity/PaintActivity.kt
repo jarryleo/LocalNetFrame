@@ -96,6 +96,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         hideAnswer()
         drawBoard.clear()
         checkPlayer()
+        //收起调色板
+        hideColorLens()
     }
 
     override fun onDestroy() {
@@ -139,10 +141,12 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         density = resources.displayMetrics.density
         hideColorLens()
         btnColorLens.setOnClickListener {
-            if (llColorLens.x + llColorLens.width <= widthPixels) {
-                hideColorLens()
-            } else {
-                showColorLens()
+            if (netManager.isMePlaying()) {
+                if (llColorLens.x + llColorLens.width <= widthPixels) {
+                    hideColorLens()
+                } else {
+                    showColorLens()
+                }
             }
         }
         //调色板按钮
