@@ -272,7 +272,7 @@ class DrawBoard : View {
                             }
                             'B' -> {
                                 val b = it.substring(1)
-                                mStrokeWidth = b.toFloat() * scale
+                                mStrokeWidth = b.toFloat() * scale * density
                                 mPaint.strokeWidth = mStrokeWidth
                             }
                         }
