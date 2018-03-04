@@ -5,6 +5,7 @@ import android.os.CountDownTimer
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.view.WindowManager
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
@@ -49,18 +50,18 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
     //倒计时
     private fun countDown() {
-        countDownTimer = object : CountDownTimer(75 * 1000, 1000) {
+        countDownTimer = object : CountDownTimer(85 * 1000, 1000) {
             override fun onFinish() {
                 nextPlayer()
             }
 
             override fun onTick(millisUntilFinished: Long) {
                 val sec = millisUntilFinished / 1000
-                if (sec in 40L..70L) {
+                if (sec > 55) {
                     //发送第一个提示，几个字
                     netManager.sendData("T${word.length}个字")
                 }
-                if (sec in 5L..40L) {
+                if (sec in 5L..55L) {
                     //发送第二个提示
                     netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
                 }
@@ -104,6 +105,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         super.onDestroy()
         countDownTimer?.cancel()
         netManager.stopGame()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     //检查现在是谁在作画
@@ -120,11 +122,16 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             countDown()
             //通知其他人清空上次画画的内容,并同步倒计时
             netManager.sendData("P")
+            //提示我开始画画
+            ToastUtilK.show(this,"轮到我开始画画了")
         }
         drawBoard.lock = !netManager.isMePlaying()
     }
 
     private fun initView() {
+        //保持屏幕常亮
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        //初始聊天信息和玩家列表
         chatAdapter = MsgListAdapter()
         userAdapter = MsgListAdapter()
         rvMsgList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -231,6 +238,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
         if (showAnswerDialog == null) {
             showAnswerDialog = AlertDialog.Builder(this)
                     .setTitle("答案是：")
+                    .setCancelable(false)
                     .setMessage(answer)
                     .show()
         } else {
@@ -283,19 +291,21 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                     if (msgBean.msg == word) {
                         msgBean.msg = "猜对了！"
                         msgBean.isAnswer = true
-                        //给答对的人加分，并把分数共享给其他人
+                        //获取答题人
                         val user = netManager.getSendMsgUser(host)!!
-                        user.score += 1
-                        netManager.sendData("U" + user.toString())
-                        refreshUsers()
                         //统计答对人数
                         if (!rightUsers.contains(user)) {
+                            //给第一次答对的人加分
+                            user.score += 1
                             rightUsers.add(user)
                             if (rightUsers.size >= netManager.getRoomUsers().size - 1) {
                                 //每个人都答对了下一个玩家开始游戏
                                 allRight = true
                             }
                         }
+                        //发送分数
+                        netManager.sendData("U" + user.toString())
+                        refreshUsers()
                     }
                     //转发聊天信息
                     netManager.sendData("C" + msgBean.toString())
