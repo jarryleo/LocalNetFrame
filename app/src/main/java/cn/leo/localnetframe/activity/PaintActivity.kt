@@ -66,7 +66,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                     netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
                 }
                 if (sec == 5L) {
-                    netManager.sendData("A" + word)
+                    netManager.sendData("A$word")
                 }
                 //倒计时
                 val time = sec - 5
@@ -74,7 +74,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                 if (time >= 0L) {
                     showCountDown(time.toString())
                     //同步倒计时
-                    netManager.sendData("D" + time)
+                    netManager.sendData("D$time")
                     if (time == 0L) {
                         //公布结果
                         showAnswer(word)
@@ -274,7 +274,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
 
     //发送画板数据
     override fun onDraw(code: String) {
-        netManager.sendData("P" + code)
+        netManager.sendData("P$code")
     }
 
     //接收数据
