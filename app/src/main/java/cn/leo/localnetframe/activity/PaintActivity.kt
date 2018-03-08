@@ -66,6 +66,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                     netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
                 }
                 if (sec == 5L) {
+                    //发送答案
                     netManager.sendData("A$word")
                 }
                 //倒计时
@@ -123,7 +124,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
             //通知其他人清空上次画画的内容,并同步倒计时
             netManager.sendData("P")
             //提示我开始画画
-            ToastUtilK.show(this,"轮到我开始画画了")
+            ToastUtilK.show(this, "轮到我开始画画了")
         }
         drawBoard.lock = !netManager.isMePlaying()
     }
@@ -156,24 +157,18 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                 }
             }
         }
-        //调色板按钮
-        cc1.setOnColorClickListener(this)
-        cc2.setOnColorClickListener(this)
-        cc3.setOnColorClickListener(this)
-        cc4.setOnColorClickListener(this)
-        cc5.setOnColorClickListener(this)
-        cc6.setOnColorClickListener(this)
-        cc7.setOnColorClickListener(this)
-        cc8.setOnColorClickListener(this)
-        cc9.setOnColorClickListener(this)
-        cc10.setOnColorClickListener(this)
-        cc11.setOnColorClickListener(this)
-        cc12.setOnColorClickListener(this)
+        //调色板按钮点击事件
+        click(cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8, cc9, cc10, cc11, cc12)
         btnUndo.setOnClickListener { drawBoard.undo() }
         btnUndo.setOnLongClickListener { drawBoard.clear(); true }
         cc01.setOnClickListener { drawBoard.setStrokeWidth(3f);hideColorLens() }
         cc02.setOnClickListener { drawBoard.setStrokeWidth(5f);hideColorLens() }
         cc03.setOnClickListener { drawBoard.setStrokeWidth(7f);hideColorLens() }
+    }
+
+    //批量设置点击事件
+    private fun click(vararg views: ColorCircle) {
+        views.forEach { it.setOnColorClickListener(this) }
     }
 
     //点击颜色
