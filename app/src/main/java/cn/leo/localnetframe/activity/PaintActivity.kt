@@ -71,18 +71,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, NetManager.
                         netManager.sendData("A$word")
                     }
                 }
-                /*if (sec > 55L) {
-                    //发送第一个提示，几个字
-                    netManager.sendData("T${word.length}个字")
-                }
-                if (sec in 6L..55L) {
-                    //发送第二个提示
-                    netManager.sendData("T${word.length}个字,${wordChooser?.getTips()}")
-                }
-                if (sec == 5L) {
-                    //发送答案
-                    netManager.sendData("A$word")
-                }*/
                 //倒计时
                 val time = sec - 5
                 //预留5秒显示答案
