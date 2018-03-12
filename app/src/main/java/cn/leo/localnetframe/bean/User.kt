@@ -26,7 +26,8 @@ data class User(var ip: String,
     //重载+号为积分增长
     operator fun User.plus(s: Int): Int = apply { score += s }.score
 
-
+    //是否掉线
+    fun isOffline() = System.currentTimeMillis() - heart > 5L * 1024
 
 
     override fun equals(other: Any?): Boolean {

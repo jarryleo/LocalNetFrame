@@ -122,7 +122,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
      * 查找房间
      */
     fun findRoom() {
-        udpFrame!!.send("F".toByteArray(), preIp + ".255")
+        udpFrame!!.send("F".toByteArray(), "$preIp.255")
     }
 
     /**

@@ -20,59 +20,25 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
     }
 
     /**
+     * 停止网络服务
+     */
+    fun stopNet() = this.udpFrame.stopNet()
+
+    /**
      * 数据接收回调接口
      */
     abstract class OnDataArrivedListener {
-        fun onShowAnswer(pre: Char, msg: String, host: String) {}
-        fun onRoomResult(pre: Char, msg: String, host: String) {}
-        fun onStartGame(pre: Char, msg: String, host: String) {}
-        fun onUpdateScore(pre: Char, msg: String, host: String) {}
-        fun onShowTips(pre: Char, msg: String, host: String) {}
-        fun onCountDown(pre: Char, msg: String, host: String) {}
-        fun onNextPainter(pre: Char, msg: String, host: String) {}
-        fun onChat(pre: Char, msg: String, host: String) {}
-        fun onPaint(pre: Char, msg: String, host: String) {}
+        open fun onShowAnswer(pre: Char, msg: String, host: String) {}
+        open fun onRoomResult(pre: Char, msg: String, host: String) {}
+        open fun onStartGame(pre: Char, msg: String, host: String) {}
+        open fun onUpdateScore(pre: Char, msg: String, host: String) {}
+        open fun onShowTips(pre: Char, msg: String, host: String) {}
+        open fun onCountDown(pre: Char, msg: String, host: String) {}
+        open fun onNextPainter(pre: Char, msg: String, host: String) {}
+        open fun onChat(pre: Char, msg: String, host: String) {}
+        open fun onPaint(pre: Char, msg: String, host: String) {}
     }
 
-    /**
-     * 通过接口返回数据
-     */
-    fun dispatchData(pre: Char, data: String, host: String) {
-        if (onDataArrivedListener != null) {
-            when (pre) {
-                'A' -> {
-                    onDataArrivedListener?.onShowAnswer(pre, data, host)
-                }
-                'R' -> {
-                    onDataArrivedListener?.onRoomResult(pre, data, host)
-                }
-                'S' -> {
-                    onDataArrivedListener?.onStartGame(pre, data, host)
-                }
-                'U' -> {
-                    onDataArrivedListener?.onUpdateScore(pre, data, host)
-                }
-                'T' -> {
-                    onDataArrivedListener?.onShowTips(pre, data, host)
-                }
-                'D' -> {
-                    onDataArrivedListener?.onCountDown(pre, data, host)
-                }
-                'N' -> {
-                    onDataArrivedListener?.onNextPainter(pre, data, host)
-                }
-                'C' -> {
-                    onDataArrivedListener?.onChat(pre, data, host)
-                }
-                'P' -> {
-                    onDataArrivedListener?.onPaint(pre, data, host)
-                }
-                else -> {
-                }
-            }
-
-        }
-    }
 
     /**
      * 设置数据回调接口
@@ -185,71 +151,111 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
             else -> {
             }
         }
+        dispatchData(first, body, host)
     }
 
-    abstract fun onShowAnswer(pre: Char, msg: String, host: String)
+    /**
+     * 通过接口返回数据
+     */
+    fun dispatchData(pre: Char, data: String, host: String) {
+        if (onDataArrivedListener != null) {
+            when (pre) {
+                'A' -> {
+                    onDataArrivedListener?.onShowAnswer(pre, data, host)
+                }
+                'R' -> {
+                    onDataArrivedListener?.onRoomResult(pre, data, host)
+                }
+                'S' -> {
+                    onDataArrivedListener?.onStartGame(pre, data, host)
+                }
+                'U' -> {
+                    onDataArrivedListener?.onUpdateScore(pre, data, host)
+                }
+                'T' -> {
+                    onDataArrivedListener?.onShowTips(pre, data, host)
+                }
+                'D' -> {
+                    onDataArrivedListener?.onCountDown(pre, data, host)
+                }
+                'N' -> {
+                    onDataArrivedListener?.onNextPainter(pre, data, host)
+                }
+                'C' -> {
+                    onDataArrivedListener?.onChat(pre, data, host)
+                }
+                'P' -> {
+                    onDataArrivedListener?.onPaint(pre, data, host)
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
+    open fun onShowAnswer(pre: Char, msg: String, host: String) {}
+    open fun onRoomResult(pre: Char, msg: String, host: String) {}
+    open fun onStartGame(pre: Char, msg: String, host: String) {}
+    open fun onShowTips(pre: Char, msg: String, host: String) {}
+    open fun onCountDown(pre: Char, msg: String, host: String) {}
+    open fun onChat(pre: Char, msg: String, host: String) {}
+    open fun onPaint(pre: Char, msg: String, host: String) {}
     abstract fun onFindRoom(pre: Char, msg: String, host: String)
-    abstract fun onRoomResult(pre: Char, msg: String, host: String)
     abstract fun onJoinRoom(pre: Char, msg: String, host: String)
-    abstract fun onStartGame(pre: Char, msg: String, host: String)
     abstract fun onUpdateScore(pre: Char, msg: String, host: String)
-    abstract fun onShowTips(pre: Char, msg: String, host: String)
-    abstract fun onCountDown(pre: Char, msg: String, host: String)
     abstract fun onExitRoom(pre: Char, msg: String, host: String)
     abstract fun onNextPainter(pre: Char, msg: String, host: String)
-    abstract fun onChat(pre: Char, msg: String, host: String)
-    abstract fun onPaint(pre: Char, msg: String, host: String)
     abstract fun onHeart(pre: Char, msg: String, host: String)
 
-    fun showAnswer(msg: String, host: String) {
+    open fun showAnswer(msg: String, host: String) {
         sendData("A$msg", host)
     }
 
-    fun findRoom(msg: String = "", host: String) {
+    open fun findRoom(msg: String = "", host: String) {
         sendData("F$msg", host)
     }
 
-    fun roomResult(msg: String, host: String) {
+    open fun roomResult(msg: String, host: String) {
         sendData("R$msg", host)
     }
 
-    fun joinRoom(msg: String, host: String) {
+    open fun joinRoom(msg: String, host: String) {
         sendData("J$msg", host)
     }
 
-    fun startGame(msg: String = "", host: String) {
+    open fun startGame(msg: String = "", host: String) {
         sendData("S$msg", host)
     }
 
-    fun updateScore(msg: String, host: String) {
+    open fun updateScore(msg: String, host: String) {
         sendData("U$msg", host)
     }
 
-    fun showTips(msg: String, host: String) {
+    open fun showTips(msg: String, host: String) {
         sendData("T$msg", host)
     }
 
-    fun countDown(msg: String, host: String) {
+    open fun countDown(msg: String, host: String) {
         sendData("C$msg", host)
     }
 
-    fun exitRoom(msg: String, host: String) {
+    open fun exitRoom(msg: String, host: String) {
         sendData("E$msg", host)
     }
 
-    fun nextPainter(msg: String = "", host: String) {
+    open fun nextPainter(msg: String = "", host: String) {
         sendData("N$msg", host)
     }
 
-    fun chat(msg: String, host: String) {
+    open fun chat(msg: String, host: String) {
         sendData("C$msg", host)
     }
 
-    fun paint(msg: String, host: String) {
+    open fun paint(msg: String, host: String) {
         sendData("P$msg", host)
     }
 
-    fun heart(msg: String = "", host: String) {
+    open fun heart(msg: String = "", host: String) {
         sendData("H${System.currentTimeMillis()}", host)
     }
 }
