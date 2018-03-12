@@ -11,10 +11,17 @@ import java.net.InetSocketAddress
 
 /**
  * Created by Leo on 2018/2/26.
+ * 安卓UDP底层传输模块，拆分数据包传输
+ * 无丢包处理。
  */
+
 class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thread() {
+    private val port = 37320
+    private val dataSize = 1024
+    private val HOST = "host"
+    private val DATA = "data"
     private val sendSocket = DatagramSocket()
-    private val receiveSocket = DatagramSocket(NetConfig.port)
+    private val receiveSocket = DatagramSocket(port)
     private var handlerThread: HandlerThread = HandlerThread("sendThread")
     private var sendHandler: Handler
 
@@ -30,8 +37,8 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
         handlerThread.start()
         sendHandler = Handler(handlerThread.looper) {
             val data = it.data
-            val host = data.getString("host")
-            val byteArray = data.getByteArray("data")
+            val host = data.getString(HOST)
+            val byteArray = data.getByteArray(DATA)
             sendData(byteArray, host)
             true
         }
@@ -43,8 +50,8 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
     fun send(data: ByteArray, host: String) {
         val message = Message.obtain()
         val bundle = Bundle()
-        bundle.putString("host", host)
-        bundle.putByteArray("data", data)
+        bundle.putString(HOST, host)
+        bundle.putByteArray(DATA, data)
         message.data = bundle
         sendHandler.sendMessage(message)
     }
@@ -53,7 +60,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
      * 监听UDP信息,接受数据
      */
     private fun listen() {
-        val data = ByteArray(NetConfig.dataSize)
+        val data = ByteArray(dataSize)
         val dp = DatagramPacket(data, data.size)
         //缓存数据
         val cache = ArrayList<ByteArray>()
@@ -70,6 +77,10 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
                 //安全退出
                 if (head[0] == (-0xEE).toByte() && head[1] == (-0xDD).toByte()) {
                     break
+                }
+                //不符合规范的数据包直接抛弃
+                if (head[0] < head[1]) {
+                    continue
                 }
                 //数据只有1个包
                 if (head[0] == 1.toByte()) {
@@ -120,26 +131,27 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
 
     /**
      *发送数据包
+     * 最大127K
      */
     private fun sendData(data: ByteArray, host: String) {
         //发送地址
-        val ia = InetSocketAddress(host, NetConfig.port)
+        val ia = InetSocketAddress(host, port)
         //已发送字节数
         var sendLength = 0
         //循环发送数据包
         while (sendLength < data.size) {
             //要发送的数据(长度不超过最小包长)
-            val length = if (data.size - sendLength > NetConfig.dataSize - 2) {
-                NetConfig.dataSize - 2
+            val length = if (data.size - sendLength > dataSize - 2) {
+                dataSize - 2
             } else {
                 (data.size - sendLength)
             } + 2
             val pack = ByteArray(length)
             //拆分后包个数
-            val packCount = data.size / (NetConfig.dataSize - 2 + 1) + 1
+            val packCount = data.size / (dataSize - 2 + 1) + 1
             //-2 表示去掉头长度，+1表示，长度刚好1个包的时候不会多出来
             //当前包序号，从1开始
-            val packIndex = sendLength / (NetConfig.dataSize - 2) + 1
+            val packIndex = sendLength / (dataSize - 2) + 1
             val head = byteArrayOf(packCount.toByte(), packIndex.toByte())
             //添加数据头
             System.arraycopy(head, 0, pack, 0, head.size)
@@ -159,7 +171,7 @@ class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thre
      * 安全关闭udp并释放端口
      */
     fun stopNet() {
-        val ia = InetSocketAddress("127.0.0.1", NetConfig.port)
+        val ia = InetSocketAddress("localhost", port)
         val head = byteArrayOf((-0xEE).toByte(), (-0xDD).toByte())
         val dp = DatagramPacket(head, head.size, ia)
         sendSocket.send(dp)
