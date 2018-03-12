@@ -82,7 +82,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     fun getRoomPainter() = room.users[room.painter]
 
     /**
-     * 找到刚刚发消息的人(没进入房间的找不到)
+     * 找到刚刚发消息的人(进入房间之前的返回null)
      */
     fun getSendMsgUser(host: String) = getRoomUsers().find { it.ip == host }
 
@@ -150,7 +150,7 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
     /**
      * 判断是否正在游戏中
      */
-    fun isGaming(): Boolean = room.state == 1
+    fun isGaming(): Boolean = room.state > 0
 
     /**
      * 是否是我在画画

@@ -16,10 +16,10 @@ import java.net.InetSocketAddress
  */
 
 class UdpFrame(private var mOnDataArrivedListener: OnDataArrivedListener) : Thread() {
-    private val port = 37320
-    private val dataSize = 1024
     private val HOST = "host"
     private val DATA = "data"
+    private val port = 37320
+    private val dataSize = 1024
     private val sendSocket = DatagramSocket()
     private val receiveSocket = DatagramSocket(port)
     private var handlerThread: HandlerThread = HandlerThread("sendThread")

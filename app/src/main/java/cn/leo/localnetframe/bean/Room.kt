@@ -11,7 +11,7 @@ import java.util.*
 class Room() : Parcelable {
     //房间ID
     var id = "0"
-    //房间状态 0 等待开始游戏 1 正在游戏
+    //房间状态 0 等待开始游戏  1-n 表示游戏进行到第几轮
     var state = 0
     //正在画画的玩家序号
     var painter = 0
@@ -40,6 +40,26 @@ class Room() : Parcelable {
 
     //房间内用户数
     fun getUserCount() = users.size
+
+    //获取当前绘画玩家
+    fun getCurrentUser() = users[painter]
+
+    //获取下一个画画的玩家
+    fun getNextUser() = if (painter >= getUserCount() - 1) {
+        0
+    } else {
+        painter + 1
+    }
+
+    //控制权移交到下一个玩家
+    fun next() {
+        painter = if (painter >= getUserCount() - 1) {
+            state++
+            0
+        } else {
+            painter + 1
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         val o: Room = (other as? Room)!!

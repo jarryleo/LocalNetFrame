@@ -9,13 +9,25 @@ import com.google.gson.Gson
  */
 data class User(var ip: String,
                 var name: String,
-                var heart: Int = 0,
+                var heart: Long = 0,
                 var score: Int = 0) : Parcelable {
+    var icon = 0
+    var state = 0
+
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
-            parcel.readInt(),
-            parcel.readInt())
+            parcel.readLong(),
+            parcel.readInt()) {
+        icon = parcel.readInt()
+        state = parcel.readInt()
+    }
+
+    //重载+号为积分增长
+    operator fun User.plus(s: Int): Int = apply { score += s }.score
+
+
+
 
     override fun equals(other: Any?): Boolean {
         val user = other as? User
@@ -29,8 +41,10 @@ data class User(var ip: String,
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(ip)
         parcel.writeString(name)
-        parcel.writeInt(heart)
+        parcel.writeLong(heart)
         parcel.writeInt(score)
+        parcel.writeInt(icon)
+        parcel.writeInt(state)
     }
 
     override fun describeContents(): Int {
