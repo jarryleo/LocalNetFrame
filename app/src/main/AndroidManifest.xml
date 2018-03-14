@@ -36,6 +36,8 @@
         <activity
             android:name=".activity.RoomActivity"
             android:screenOrientation="portrait"/>
+        <!--设置-->
+        <activity android:name=".activity.SettingActivity"/>
     </application>
 
 </manifest>

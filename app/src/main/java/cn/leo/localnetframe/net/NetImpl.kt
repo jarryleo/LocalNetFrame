@@ -11,6 +11,22 @@ import com.google.gson.Gson
 class NetImpl(context: Context) : NetInterFace() {
     private val roomManager = RoomManager(context)
 
+    /**
+     * 发送消息给除了自己外房间的其他人
+     */
+    fun sendMsgOther(data: String) {
+        roomManager.getRoomUsers()
+                .filterNot { it.ip == roomManager.getMe().ip }
+                .forEach { sendData(data, it.ip) }
+    }
+
+    /**
+     * 发送消息给画画的人
+     */
+    fun sendMsgPainter(data: String) {
+        sendData(data, roomManager.getRoomPainter().ip)
+    }
+
 
     override fun onFindRoom(pre: Char, msg: String, host: String) {
         if (roomManager.getRoomUserCount() > 0) {

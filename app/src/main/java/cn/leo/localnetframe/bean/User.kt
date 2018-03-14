@@ -11,8 +11,10 @@ data class User(var ip: String,
                 var name: String,
                 var heart: Long = 0,
                 var score: Int = 0) : Parcelable {
+
     var icon = 0
-    var state = 0
+    @State
+    private var state = STATE_ONLINE
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
@@ -20,14 +22,25 @@ data class User(var ip: String,
             parcel.readLong(),
             parcel.readInt()) {
         icon = parcel.readInt()
-        state = parcel.readInt()
+        state = parcel.readLong()
     }
 
     //重载+号为积分增长
     operator fun User.plus(s: Int): Int = apply { score += s }.score
 
     //是否掉线
-    fun isOffline() = System.currentTimeMillis() - heart > 5L * 1024
+    fun isOffline(): Boolean {
+        val offline = System.currentTimeMillis() - heart > 5L * 1024
+        state = if (offline) {
+            STATE_OFFLINE
+        } else {
+            STATE_ONLINE
+        }
+        return offline
+    }
+
+    @State
+    fun getStatus() = state
 
 
     override fun equals(other: Any?): Boolean {
@@ -45,7 +58,7 @@ data class User(var ip: String,
         parcel.writeLong(heart)
         parcel.writeInt(score)
         parcel.writeInt(icon)
-        parcel.writeInt(state)
+        parcel.writeLong(state)
     }
 
     override fun describeContents(): Int {

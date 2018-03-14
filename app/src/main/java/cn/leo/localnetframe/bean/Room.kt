@@ -46,9 +46,9 @@ class Room() : Parcelable {
 
     //获取下一个画画的玩家
     fun getNextUser() = if (painter >= getUserCount() - 1) {
-        0
+        users[0]
     } else {
-        painter + 1
+        users[painter + 1]
     }
 
     //控制权移交到下一个玩家

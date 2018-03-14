@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import cn.leo.localnetframe.R
+import cn.leo.localnetframe.utils.get
 
 class SplashActivity : AppCompatActivity() {
     private val handler = Handler()
@@ -22,7 +23,12 @@ class SplashActivity : AppCompatActivity() {
     private var runnable = Runnable { openActivity() }
 
     private fun openActivity() {
-        startActivity(Intent(this, RoomListActivity::class.java))
+        var icon = get("icon", -1)
+        if (icon == -1) {
+            startActivity(Intent(this, SettingActivity::class.java))
+        } else {
+            startActivity(Intent(this, RoomListActivity::class.java))
+        }
         finish()
     }
 
