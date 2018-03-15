@@ -1,1 +1,1 @@
-include ':app', ':localnet'
+include ':app', ':localnet', ':library_CircleRecyclerView'
