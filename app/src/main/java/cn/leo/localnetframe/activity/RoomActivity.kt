@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.view.View
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
@@ -59,6 +60,11 @@ class RoomActivity : AppCompatActivity() {
         adapter?.clearData()
         netManager.getRoomUsers().forEach {
             adapter?.addData(it)
+        }
+        if (netManager.meIsRoomOwner() || netManager.isGaming()) {
+            btnStartGame.visibility = View.VISIBLE
+        } else {
+            btnStartGame.visibility = View.GONE
         }
     }
 
