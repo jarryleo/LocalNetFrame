@@ -63,6 +63,7 @@ class NetImpl(context: Context) : NetInterFace() {
      * 加入房间
      */
     fun joinRoom(room: Room) {
+        roomManager.joinRoom(room)
         sendMsgOther(room.toString(), ::joinRoom)
     }
 

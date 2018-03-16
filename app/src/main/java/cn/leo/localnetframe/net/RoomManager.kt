@@ -47,6 +47,14 @@ class RoomManager(context: Context) {
     fun getRoom() = room
 
     /**
+     *加入别的房间
+     */
+    fun joinRoom(room: Room) {
+        this.room = room
+        addUser(me)
+    }
+
+    /**
      * 获取房间json
      */
     fun getRoomJson() = room.toString()
