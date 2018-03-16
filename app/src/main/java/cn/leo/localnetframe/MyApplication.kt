@@ -1,7 +1,8 @@
 package cn.leo.localnetframe
 
 import android.app.Application
-import cn.leo.localnetframe.net.NetManager
+import cn.leo.localnetframe.net.NetImpl
+import cn.leo.localnetframe.net.NetInterFace
 
 /**
  * Created by Leo on 2018/2/28.
@@ -10,8 +11,7 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        netManager = NetManager(this)
-        netManager.startNet()
+        netManager = NetImpl(this)
     }
 
     override fun onTerminate() {
@@ -20,9 +20,9 @@ class MyApplication : Application() {
     }
 
     companion object {
-        private lateinit var netManager: NetManager
-        fun getNetManager(dataListener: NetManager.OnMsgArrivedListener): NetManager {
-            netManager.setDataListener(dataListener)
+        private lateinit var netManager: NetImpl
+        fun getNetManager(dataListener: NetInterFace.OnDataArrivedListener): NetImpl {
+            netManager.setDataArrivedListener(dataListener)
             return netManager
         }
     }

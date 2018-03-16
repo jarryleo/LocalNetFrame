@@ -9,16 +9,18 @@ import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.UserListAdapter
 import cn.leo.localnetframe.bean.Room
-import cn.leo.localnetframe.net.NetManager
+import cn.leo.localnetframe.net.NetImpl
+import cn.leo.localnetframe.net.NetInterFace
 import kotlinx.android.synthetic.main.activity_room.*
 
-class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
-    private lateinit var netManager: NetManager
+class RoomActivity : AppCompatActivity() {
+    private lateinit var netManager: NetImpl
     private var adapter: UserListAdapter? = null
+    private val dataReceiver = DataReceiver()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
-        netManager = MyApplication.getNetManager(this)
+        netManager = MyApplication.getNetManager(dataReceiver)
         initView()
         initData()
     }
@@ -29,17 +31,17 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
             netManager.joinRoom(room)
             refreshUsers()
             if (netManager.isGaming()) {
-                title = getString(R.string.room_id, netManager.getMeRoomId()) + "(游戏中)"
+                title = getString(R.string.room_id, netManager.getRoomId()) + "(游戏中)"
                 btnStartGame.text = "加入游戏"
             }
         } else {
-            title = getString(R.string.room_id, netManager.getMeRoomId())
+            title = getString(R.string.room_id, netManager.getRoomId())
         }
     }
 
-    override fun onRestart() {0
+    override fun onRestart() {
         super.onRestart()
-        netManager = MyApplication.getNetManager(this)
+        netManager = MyApplication.getNetManager(dataReceiver)
     }
 
     private fun initView() {
@@ -64,7 +66,7 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         if (netManager.isGaming()) {
             startActivity(Intent(this, PaintActivity::class.java))
         } else if (netManager.getRoomUsers().size > 1) {
-            if (netManager.isAdmin()) {
+            if (netManager.meIsRoomOwner()) {
                 //发送开始游戏指令
                 netManager.startGame()
                 //跳转到游戏界面
@@ -78,22 +80,23 @@ class RoomActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         }
     }
 
-    override fun onMsgArrived(data: String, host: String) {
-        when (data.first()) {
-            'J' -> {
-                refreshUsers()
-            }
-            'E' -> {
-                refreshUsers()
-            }
-            'S' -> {
-                startActivity(Intent(this, PaintActivity::class.java))
-            }
-            else -> {
+    /**
+     * 接受到数据
+     */
+    inner class DataReceiver : NetInterFace.OnDataArrivedListener() {
+        override fun onJoinRoom(pre: Char, msg: String, host: String) {
+            refreshUsers()
+        }
 
-            }
+        override fun onExitRoom(pre: Char, msg: String, host: String) {
+            refreshUsers()
+        }
+
+        override fun onStartGame(pre: Char, msg: String, host: String) {
+            startActivity(Intent(this@RoomActivity, PaintActivity::class.java))
         }
     }
+
 
     override fun onBackPressed() {
         super.onBackPressed()

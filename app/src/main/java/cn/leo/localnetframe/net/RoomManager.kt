@@ -34,6 +34,14 @@ class RoomManager(context: Context) {
     }
 
     /**
+     * 创建房间，清空所有玩家，数据归零，把自己加入房间
+     */
+    fun createRoom() {
+        initRoom()
+        addUser(me)
+    }
+
+    /**
      * 获取房间对象
      */
     fun getRoom() = room
@@ -57,6 +65,16 @@ class RoomManager(context: Context) {
      * 获取当前画画的人
      */
     fun getRoomPainter() = room.users[room.painter]
+
+    /**
+     * 我是不是房主，房主才能开始游戏
+     */
+    fun meIsRoomOwner() = room.users[0] == me
+
+    /**
+     * 判断自己是不是画画的人
+     */
+    fun meIsPainter() = me == getRoomPainter()
 
     /**
      * 找到刚刚发消息的人(进入房间之前的返回null)

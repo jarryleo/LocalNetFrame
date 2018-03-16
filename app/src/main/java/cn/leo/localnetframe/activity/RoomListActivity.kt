@@ -10,34 +10,32 @@ import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.RoomListAdapter
 import cn.leo.localnetframe.bean.Room
-import cn.leo.localnetframe.net.NetManager
+import cn.leo.localnetframe.net.NetImpl
+import cn.leo.localnetframe.net.NetInterFace
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room_list.*
 
-class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
-    private var netManager: NetManager? = null
+class RoomListActivity : AppCompatActivity() {
+    private var netManager: NetImpl? = null
     private var adapter: RoomListAdapter? = null
+    private val dataReceiver = DataReceiver()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room_list)
-        MyApplication.getNetManager(this)
-        netManager = MyApplication.getNetManager(this)
+        netManager = MyApplication.getNetManager(dataReceiver)
         initView()
     }
 
     override fun onRestart() {
         super.onRestart()
-        netManager = MyApplication.getNetManager(this)
+        netManager = MyApplication.getNetManager(dataReceiver)
         adapter?.clearData()
         netManager?.findRoom()
     }
 
     private fun initView() {
-        fab.setOnClickListener {
-            netManager?.createRoom()
-            ToastUtilK.show(this, "创建房间成功，房间号${netManager?.getMeRoomId()}")
-            startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
-        }
+        title = "当前WIFI网络大厅"
 
         adapter = RoomListAdapter()
         swipeRefresh.setOnRefreshListener {
@@ -51,6 +49,13 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         netManager?.findRoom()
         swipeRefresh.isRefreshing = true
         refresh()
+
+        //创建房间
+        fab.setOnClickListener {
+            netManager?.createRoom()
+            ToastUtilK.show(this, "创建房间成功，房间号${netManager?.getRoomId()}")
+            startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
+        }
     }
 
     private fun refresh() {
@@ -70,19 +75,15 @@ class RoomListActivity : AppCompatActivity(), NetManager.OnMsgArrivedListener {
         handler.removeCallbacks(runnable)
     }
 
-    override fun onMsgArrived(data: String, host: String) {
-        swipeRefresh.isRefreshing = false
-        when (data.first()) {
-            'R' -> {
-                //返回一个房间json
-                val json = data.substring(1)
-                val room = Gson().fromJson<Room>(json, Room::class.java)
-                if (!adapter?.mList?.contains(room)!!) {
-                    adapter?.addData(room)
-                }
-            }
-            else -> {
-
+    /**
+     * 接受到数据
+     */
+    inner class DataReceiver : NetInterFace.OnDataArrivedListener() {
+        override fun onRoomResult(pre: Char, msg: String, host: String) {
+            swipeRefresh.isRefreshing = false
+            val room = Gson().fromJson<Room>(msg, Room::class.java)
+            if (!adapter?.mList?.contains(room)!!) {
+                adapter?.addData(room)
             }
         }
     }

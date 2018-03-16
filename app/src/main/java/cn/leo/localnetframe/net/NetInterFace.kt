@@ -30,6 +30,8 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
     abstract class OnDataArrivedListener {
         open fun onShowAnswer(pre: Char, msg: String, host: String) {}
         open fun onRoomResult(pre: Char, msg: String, host: String) {}
+        open fun onJoinRoom(pre: Char, msg: String, host: String) {}
+        open fun onExitRoom(pre: Char, msg: String, host: String) {}
         open fun onStartGame(pre: Char, msg: String, host: String) {}
         open fun onUpdateScore(pre: Char, msg: String, host: String) {}
         open fun onShowTips(pre: Char, msg: String, host: String) {}
@@ -166,6 +168,12 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
                 'R' -> {
                     onDataArrivedListener?.onRoomResult(pre, data, host)
                 }
+                'J' -> {
+                    onDataArrivedListener?.onJoinRoom(pre, data, host)
+                }
+                'E' -> {
+                    onDataArrivedListener?.onExitRoom(pre, data, host)
+                }
                 'S' -> {
                     onDataArrivedListener?.onStartGame(pre, data, host)
                 }
@@ -211,7 +219,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
         sendData("A$msg", host)
     }
 
-    open fun findRoom(msg: String = "", host: String) {
+    protected fun findRoom(msg: String = "", host: String) {
         sendData("F$msg", host)
     }
 
@@ -239,7 +247,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
         sendData("C$msg", host)
     }
 
-    open fun exitRoom(msg: String, host: String) {
+    open fun exitRoom(msg: String = "", host: String) {
         sendData("E$msg", host)
     }
 

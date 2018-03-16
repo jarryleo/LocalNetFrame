@@ -25,9 +25,6 @@ data class User(var ip: String,
         state = parcel.readLong()
     }
 
-    //重载+号为积分增长
-    operator fun User.plus(s: Int): Int = apply { score += s }.score
-
     //是否掉线
     fun isOffline(): Boolean {
         val offline = System.currentTimeMillis() - heart > 5L * 1024

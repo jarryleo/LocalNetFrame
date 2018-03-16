@@ -51,7 +51,7 @@ class Room() : Parcelable {
         users[painter + 1]
     }
 
-    //控制权移交到下一个玩家
+    //控制权移交到下一个玩家(判断玩家不是离线状态 TODO)
     fun next() {
         painter = if (painter >= getUserCount() - 1) {
             state++
