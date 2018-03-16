@@ -37,7 +37,9 @@
             android:name=".activity.RoomActivity"
             android:screenOrientation="portrait"/>
         <!--设置-->
-        <activity android:name=".activity.SettingActivity"/>
+        <activity
+            android:name=".activity.SettingActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
     </application>
 
 </manifest>

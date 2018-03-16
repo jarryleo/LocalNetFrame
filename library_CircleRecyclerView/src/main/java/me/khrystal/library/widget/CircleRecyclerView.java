@@ -8,6 +8,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -176,6 +177,7 @@ public class CircleRecyclerView extends RecyclerView implements View.OnClickList
                 mCenterRunnable.setView(mCurrentCenterChildView);
                 ViewCompat.postOnAnimation(this, mCenterRunnable);
             }
+            Log.d(TAG, "onScrollStateChanged: 停止滑动" + getCenterPosition());
         }
 
         if (mOnScrollListener != null)
@@ -214,24 +216,7 @@ public class CircleRecyclerView extends RecyclerView implements View.OnClickList
     }
 
     public int getCenterPosition() {
-        int x = 0, y = 0;
-        if (getLayoutManager().canScrollVertically()) {
-            y = getHeight() / 2;
-        } else if (getLayoutManager().canScrollHorizontally()) {
-            x = getWidth() / 2;
-        }
-        final int count = getChildCount();
-        for (int i = 0; i < count; ++i) {
-            final View v = getChildAt(i);
-            final int x0 = v.getLeft();
-            final int y0 = v.getTop();
-            final int x1 = v.getWidth() + x0;
-            final int y1 = v.getHeight() + y0;
-            if (x >= x0 && x <= x1 && y >= y0 && y <= y1) {
-                return i;
-            }
-        }
-        return 0;
+        return getLayoutManager().getPosition(findViewAtCenter());
     }
 
     @Override
