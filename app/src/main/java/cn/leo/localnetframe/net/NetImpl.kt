@@ -62,9 +62,9 @@ class NetImpl(context: Context) : NetInterFace() {
             roomManager.exitRoom()
             broadCastRoomInfo()
         } else {
+            sendMsgOther("", ::exitRoom)
             roomManager.exitRoom()
         }
-        sendMsgOther("", ::exitRoom)
     }
 
     /**
