@@ -2,14 +2,18 @@ package cn.leo.localnetframe.activity
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.MsgListAdapter
+import cn.leo.localnetframe.adapter.ScoreListAdapter
 import cn.leo.localnetframe.bean.Msg
 import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetImpl
@@ -28,7 +32,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private var widthPixels: Int = 0
     private var density: Float = 0f
     private var chatAdapter: MsgListAdapter? = null
-    private var userAdapter: MsgListAdapter? = null
+    private var userAdapter: ScoreListAdapter? = null
     private var wordChooser: WordChooser? = null
     private var countDownTimer: CountDownTimer? = null
     private var word: String = "测试"
@@ -138,9 +142,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         //初始聊天信息和玩家列表
         chatAdapter = MsgListAdapter()
-        userAdapter = MsgListAdapter()
-        rvMsgList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        rvUserScoreList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        userAdapter = ScoreListAdapter()
+        rvMsgList.layoutManager = LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false)
+        rvUserScoreList.layoutManager = LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false)
         rvMsgList.adapter = chatAdapter
         rvUserScoreList.adapter = userAdapter
         //发送消息按钮
@@ -183,12 +189,23 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
     //显示调色板
     private fun showColorLens() {
-        llColorLens.x = (widthPixels - llColorLens.width).toFloat()
+        ViewCompat
+                .animate(llColorLens)
+                .setDuration(200)
+                .translationX((widthPixels - llColorLens.width).toFloat())
+                .setInterpolator(AccelerateInterpolator())
+                .start()
     }
+
 
     //隐藏调色板
     private fun hideColorLens() {
-        llColorLens.x = widthPixels - (40 * density)
+        ViewCompat
+                .animate(llColorLens)
+                .setDuration(200)
+                .translationX(widthPixels - (40 * density))
+                .setInterpolator(DecelerateInterpolator())
+                .start()
     }
 
     //点击发送消息执行逻辑
@@ -216,8 +233,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private fun refreshUsers() {
         userAdapter?.clearData()
         netManager.getRoomUsers()?.forEach {
-            val score = Msg(it.name, it.score.toString())
-            userAdapter?.addData(score)
+            userAdapter?.addData(it)
         }
         checkPlayer()
     }

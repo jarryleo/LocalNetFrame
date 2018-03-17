@@ -154,12 +154,7 @@ class DrawBoard : View {
      * 设置画板背景
      */
     private fun drawBackGround() {
-        val colorDrawable = (background as? ColorDrawable)
-        if (colorDrawable != null) {
-            mCanvas.drawColor(colorDrawable.color)
-        } else {
-            mCanvas.drawColor(resources.getColor(R.color.colorPrimaryDark))
-        }
+        mCanvas.drawColor(resources.getColor(R.color.colorPaintBg))
     }
 
     /**

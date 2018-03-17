@@ -139,6 +139,7 @@ class NetImpl(context: Context) : NetInterFace() {
      * 下一个人开始游戏
      */
     fun nextPainter() {
+        roomManager.getRoom().next()
         sendMsgOther("", ::nextPainter)
     }
 

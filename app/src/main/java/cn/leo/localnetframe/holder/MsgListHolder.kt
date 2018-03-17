@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.item_msg.view.*
  */
 class MsgListHolder(itemView: View) : BaseRVHolder<Msg>(itemView) {
     override fun setData(t: Msg, position: Int) {
-        itemView.tvName.text = t.name
+        itemView.tvName.text = "${t.name}:"
         itemView.tvMsg.text = t.msg
         if (t.isAnswer) {
             itemView.tvMsg.setTextColor(Color.RED)

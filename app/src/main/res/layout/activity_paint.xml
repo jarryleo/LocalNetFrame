@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:background="@color/colorPrimaryDark">
 
         <TextView
             android:id="@+id/tvTitle"
@@ -38,7 +38,7 @@
             android:id="@+id/drawBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"/>
+            android:background="@color/colorPaintBg"/>
 
         <include layout="@layout/layout_color_palette"/>
     </RelativeLayout>
@@ -48,41 +48,49 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvMsgList"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"/>
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        android:paddingTop="2dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvUserScoreList"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/colorGreen"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvMsgList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+
     </LinearLayout>
     <!--聊天信息-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/etMsg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:hint="@string/chat_edit_hint"
-            android:maxLength="20"
+            android:maxLength="18"
+            android:maxLines="2"
             android:textColor="@android:color/white"/>
 
         <TextView
             android:id="@+id/btnSendMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/selector_btn_send_mag"
+            android:maxLines="2"
             android:padding="8dp"
             android:text="发送"
             android:textColor="@android:color/white"/>

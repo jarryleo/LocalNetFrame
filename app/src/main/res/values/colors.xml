@@ -7,4 +7,7 @@
     <color name="colorGray">#7E884F</color>
     <color name="colorBackGround">#EBF0F3</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorOrange">#FF9900</color>
+    <color name="colorPink">#FF9999</color>
+    <color name="colorPaintBg">#6E8878</color>
 </resources>
