@@ -27,8 +27,8 @@ class Room() : Parcelable {
 
     //用户进入房间
     fun addUser(user: User) {
-        val has = users.find { it.ip == user.ip }
-        if (has == null) {
+        val find = users.find { it.ip == user.ip }
+        if (find == null) {
             users.add(user)
         }
     }

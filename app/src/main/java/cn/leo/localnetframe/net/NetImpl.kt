@@ -77,6 +77,13 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
+     * 同步房间信息
+     */
+    fun uploadRoomInfo(room: Room) {
+        roomManager.joinRoom(room)
+    }
+
+    /**
      * 获取房间号
      */
     fun getRoomId() = roomManager.getRoom().id

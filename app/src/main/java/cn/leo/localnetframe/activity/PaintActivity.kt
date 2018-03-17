@@ -346,6 +346,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
         override fun onJoinRoom(pre: Char, msg: String, host: String) {
             refreshUsers()
+            //刚加入房间的人发送一副画板图给他
+            netManager.sendData("P${drawBoard.getDrawCode()}", host)
         }
 
         override fun onUpdateScore(pre: Char, msg: String, host: String) {

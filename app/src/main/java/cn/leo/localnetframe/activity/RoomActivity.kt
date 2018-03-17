@@ -12,6 +12,7 @@ import cn.leo.localnetframe.adapter.UserListAdapter
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room.*
 
 class RoomActivity : AppCompatActivity() {
@@ -86,6 +87,8 @@ class RoomActivity : AppCompatActivity() {
             }
         } else {
             ToastUtilK.show(this, "最少两人才能开始游戏")
+            //发送开始游戏指令 TODO 以下代码正式版移除
+            netManager.startGame()
             startActivity(Intent(this, PaintActivity::class.java))
             finish()
         }
@@ -101,6 +104,13 @@ class RoomActivity : AppCompatActivity() {
 
         override fun onExitRoom(pre: Char, msg: String, host: String) {
             refreshUsers()
+        }
+
+        override fun onRoomResult(pre: Char, msg: String, host: String) {
+            val room = Gson().fromJson<Room>(msg, Room::class.java)
+            if (room.id == netManager.getRoomId()) {
+                netManager.uploadRoomInfo(room)
+            }
         }
 
         override fun onStartGame(pre: Char, msg: String, host: String) {

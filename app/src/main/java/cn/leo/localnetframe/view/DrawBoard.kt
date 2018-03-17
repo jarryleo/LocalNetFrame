@@ -191,6 +191,11 @@ class DrawBoard : View {
     }
 
     /**
+     *获取图像编码
+     */
+    fun getDrawCode() = bitmapCode.toString()
+
+    /**
      * 撤销一笔
      */
     fun undo() {
