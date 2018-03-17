@@ -328,6 +328,10 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             refreshUsers()
         }
 
+        override fun onJoinRoom(pre: Char, msg: String, host: String) {
+            refreshUsers()
+        }
+
         override fun onUpdateScore(pre: Char, msg: String, host: String) {
             refreshUsers()
         }

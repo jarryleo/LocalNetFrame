@@ -30,10 +30,13 @@ class RoomActivity : AppCompatActivity() {
         val room = intent.getParcelableExtra<Room>("room")
         if (room != null) {
             netManager.joinRoom(room)
-            if (netManager.isGaming()) {
-                title = getString(R.string.room_id, netManager.getRoomId()) + "(游戏中)"
-                btnStartGame.text = "加入游戏"
-            }
+        }
+    }
+
+    private fun initTitle() {
+        if (netManager.isGaming()) {
+            title = getString(R.string.room_id, netManager.getRoomId()) + "(游戏中)"
+            btnStartGame.text = "加入游戏"
         } else {
             title = getString(R.string.room_id, netManager.getRoomId())
         }
@@ -65,6 +68,7 @@ class RoomActivity : AppCompatActivity() {
         } else {
             btnStartGame.visibility = View.GONE
         }
+        initTitle()
     }
 
     private fun startGame() {
@@ -83,6 +87,7 @@ class RoomActivity : AppCompatActivity() {
         } else {
             ToastUtilK.show(this, "最少两人才能开始游戏")
             startActivity(Intent(this, PaintActivity::class.java))
+            finish()
         }
     }
 
