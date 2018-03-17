@@ -48,8 +48,8 @@ class NetImpl(context: Context) : NetInterFace() {
     /**
      * 创建房间
      */
-    fun createRoom() {
-        roomManager.createRoom()
+    fun createRoom(id: String = "") {
+        roomManager.createRoom(id)
         broadCastRoomInfo()
     }
 
@@ -73,7 +73,7 @@ class NetImpl(context: Context) : NetInterFace() {
     fun joinRoom(room: Room) {
         roomManager.joinRoom(room)
         sendMsgOther(roomManager.getMe().toString(), ::joinRoom)
-        broadCastRoomInfo()
+        //broadCastRoomInfo()
     }
 
     /**
@@ -111,6 +111,11 @@ class NetImpl(context: Context) : NetInterFace() {
      *获取房间内玩家
      */
     fun getRoomUsers() = roomManager.getRoomUsers()
+
+    /**
+     *获取我的IP尾号
+     */
+    fun getMeLastIp() = roomManager.getLastIp()
 
     /**
      * 找到刚刚发消息的人(进入房间之前的返回null)
@@ -187,6 +192,10 @@ class NetImpl(context: Context) : NetInterFace() {
     override fun onJoinRoom(pre: Char, msg: String, host: String) {
         val user = Gson().fromJson<User>(msg, User::class.java)
         roomManager.addUser(user)
+        //我是房主，广播一次房间信息变化
+        if (roomManager.meIsRoomOwner()) {
+            broadCastRoomInfo()
+        }
     }
 
     /**

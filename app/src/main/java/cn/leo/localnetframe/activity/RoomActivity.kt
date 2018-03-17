@@ -110,6 +110,7 @@ class RoomActivity : AppCompatActivity() {
             val room = Gson().fromJson<Room>(msg, Room::class.java)
             if (room.id == netManager.getRoomId()) {
                 netManager.uploadRoomInfo(room)
+                refreshUsers()
             }
         }
 

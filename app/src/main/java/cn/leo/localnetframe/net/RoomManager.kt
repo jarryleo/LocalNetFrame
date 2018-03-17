@@ -30,9 +30,9 @@ class RoomManager(context: Context) {
     /**
      * 初始化房间
      */
-    private fun initRoom() {
+    private fun initRoom(id: String = lastIp) {
         room.users.clear()
-        room.id = lastIp
+        room.id = id
         room.state = 0
         room.painter = 0
     }
@@ -40,8 +40,8 @@ class RoomManager(context: Context) {
     /**
      * 创建房间，清空所有玩家，数据归零，把自己加入房间
      */
-    fun createRoom() {
-        initRoom()
+    fun createRoom(id: String = lastIp) {
+        initRoom(id)
         addUser(me)
     }
 

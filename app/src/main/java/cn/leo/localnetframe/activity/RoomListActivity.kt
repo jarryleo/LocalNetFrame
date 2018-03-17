@@ -6,7 +6,6 @@ import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
@@ -72,9 +71,20 @@ class RoomListActivity : AppCompatActivity() {
 
         //创建房间
         fab.setOnClickListener {
-            netManager?.createRoom()
-            ToastUtilK.show(this, "创建房间成功，房间号${netManager?.getRoomId()}")
-            startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
+            if (swipeRefresh.isRefreshing) {
+                ToastUtilK.show(this, "等待扫描房间完成后才能创建房间")
+            } else {
+                //房间号码从1开始累计
+                var roomId = "1"
+                var find = adapter?.mList?.find { it.id == roomId }
+                while (find != null) {
+                    roomId = (roomId.toInt().plus(1)).toString()
+                    find = adapter?.mList?.find { it.id == roomId }
+                }
+                netManager?.createRoom(roomId)
+                ToastUtilK.show(this, "创建房间成功，房间号${netManager?.getRoomId()}")
+                startActivity(Intent(this@RoomListActivity, RoomActivity::class.java))
+            }
         }
     }
 
@@ -86,7 +96,11 @@ class RoomListActivity : AppCompatActivity() {
     private val runnable = Runnable {
         if (swipeRefresh.isRefreshing) {
             swipeRefresh.isRefreshing = false
-            ToastUtilK.show(this, "没有搜索到房间，请重试或者创建房间")
+            if (adapter?.itemCount == 0) {
+                ToastUtilK.show(this, "没有搜索到房间，请下拉重试或者创建房间")
+            } else {
+                ToastUtilK.show(this, "找到${adapter?.itemCount}个房间")
+            }
         }
     }
 
@@ -100,7 +114,7 @@ class RoomListActivity : AppCompatActivity() {
      */
     inner class DataReceiver : NetInterFace.OnDataArrivedListener() {
         override fun onRoomResult(pre: Char, msg: String, host: String) {
-            swipeRefresh.isRefreshing = false
+            //swipeRefresh.isRefreshing = false
             val room = Gson().fromJson<Room>(msg, Room::class.java)
             adapter?.removeData(room)
             //房间人数大于0才加入列表
