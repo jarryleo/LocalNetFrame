@@ -100,13 +100,13 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private fun nextPlayer() {
         tvTitle.text = resources.getText(R.string.app_name)
         isMePaint = false
-        countDownTimer?.cancel()
         rightUsers.clear()
+        countDownTimer?.cancel()
         netManager.nextPainter()
         hideAnswer()
-        drawBoard.clear()
         checkPlayer()
-        //收起调色板
+        refreshUsers()
+        drawBoard.clear()
         hideColorLens()
     }
 
@@ -142,7 +142,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         //初始聊天信息和玩家列表
         chatAdapter = MsgListAdapter()
-        userAdapter = ScoreListAdapter()
+        userAdapter = ScoreListAdapter(netManager)
         rvMsgList.layoutManager = LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false)
         rvUserScoreList.layoutManager = LinearLayoutManager(this,

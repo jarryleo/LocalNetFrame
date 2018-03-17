@@ -83,7 +83,11 @@ class RoomManager(context: Context) {
     /**
      * 获取当前画画的人
      */
-    fun getRoomPainter() = room.users[room.painter] ?: null
+    fun getRoomPainter() = if (room.users.size > room.painter) {
+        room.users[room.painter]
+    } else {
+        me
+    }
 
     /**
      * 我是不是房主，房主才能开始游戏

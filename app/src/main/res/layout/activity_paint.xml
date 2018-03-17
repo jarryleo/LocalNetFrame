@@ -49,8 +49,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@color/colorPrimaryDark"
-        android:orientation="vertical"
-        android:paddingTop="2dp">
+        android:orientation="vertical">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvUserScoreList"

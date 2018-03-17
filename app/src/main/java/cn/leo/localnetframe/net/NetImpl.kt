@@ -144,6 +144,11 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
+     * 获取当前画画的玩家
+     */
+    fun getPainter() = roomManager.getRoomPainter()
+
+    /**
      * 结束游戏(先退出房间)
      */
     fun stopGame() {

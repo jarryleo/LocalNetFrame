@@ -4,7 +4,10 @@
     android:layout_width="50dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="2dp">
+    android:paddingBottom="2dp"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp"
+    android:paddingTop="4dp">
 
     <RelativeLayout
         android:layout_width="40dp"
