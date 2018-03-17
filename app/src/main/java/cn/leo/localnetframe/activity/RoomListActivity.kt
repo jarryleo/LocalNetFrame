@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
@@ -25,6 +28,23 @@ class RoomListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_room_list)
         netManager = MyApplication.getNetManager(dataReceiver)
         initView()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.setting_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.menu_setting -> {
+                startActivity(Intent(this, SettingActivity::class.java))
+                return true
+            }
+            else -> {
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onRestart() {
@@ -82,7 +102,9 @@ class RoomListActivity : AppCompatActivity() {
         override fun onRoomResult(pre: Char, msg: String, host: String) {
             swipeRefresh.isRefreshing = false
             val room = Gson().fromJson<Room>(msg, Room::class.java)
-            if (!adapter?.mList?.contains(room)!!) {
+            adapter?.removeData(room)
+            //房间人数大于0才加入列表
+            if (room.getUserCount() > 0) {
                 adapter?.addData(room)
             }
         }

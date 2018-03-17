@@ -22,15 +22,14 @@ class RoomActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
         netManager = MyApplication.getNetManager(dataReceiver)
-        initView()
         initData()
+        initView()
     }
 
     private fun initData() {
         val room = intent.getParcelableExtra<Room>("room")
         if (room != null) {
             netManager.joinRoom(room)
-            refreshUsers()
             if (netManager.isGaming()) {
                 title = getString(R.string.room_id, netManager.getRoomId()) + "(游戏中)"
                 btnStartGame.text = "加入游戏"
@@ -77,6 +76,7 @@ class RoomActivity : AppCompatActivity() {
                 netManager.startGame()
                 //跳转到游戏界面
                 startActivity(Intent(this, PaintActivity::class.java))
+                finish()
             } else {
                 ToastUtilK.show(this, "排在第一位置的人才能开始游戏")
             }
@@ -100,6 +100,7 @@ class RoomActivity : AppCompatActivity() {
 
         override fun onStartGame(pre: Char, msg: String, host: String) {
             startActivity(Intent(this@RoomActivity, PaintActivity::class.java))
+            finish()
         }
     }
 

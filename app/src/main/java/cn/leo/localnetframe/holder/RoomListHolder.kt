@@ -19,7 +19,7 @@ class RoomListHolder(itemView: View) : BaseRVHolder<Room>(itemView) {
         itemView.tvUserCount.text = mContext.resources.getString(R.string.user_count, t.getUserCount().toString())
         itemView.rvUserList.layoutManager = LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false)
         itemView.rvUserList.adapter = UserIconListAdapter().apply { setDatas(t.users) }
-        itemView.setOnClickListener {
+        itemView.tvEnter.setOnClickListener {
             val intent = Intent(mContext, RoomActivity::class.java)
             intent.putExtra("room", t)
             mContext.startActivity(intent)

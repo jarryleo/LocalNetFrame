@@ -35,7 +35,7 @@ class NetImpl(context: Context) : NetInterFace() {
      * 发送消息给画画的人
      */
     fun sendMsgPainter(data: String) {
-        sendData(data, roomManager.getRoomPainter().ip)
+        sendData(data, roomManager.getRoomPainter()!!.ip)
     }
 
     /**
@@ -50,12 +50,20 @@ class NetImpl(context: Context) : NetInterFace() {
      */
     fun createRoom() {
         roomManager.createRoom()
+        broadCastRoomInfo()
     }
 
     /**
      * 退出房间
      */
     fun exitRoom() {
+        //如果房间只有我，那么广播这个房间消失信息
+        if (roomManager.getRoomUserCount() == 1) {
+            roomManager.exitRoom()
+            broadCastRoomInfo()
+        } else {
+            roomManager.exitRoom()
+        }
         sendMsgOther("", ::exitRoom)
     }
 
@@ -64,7 +72,8 @@ class NetImpl(context: Context) : NetInterFace() {
      */
     fun joinRoom(room: Room) {
         roomManager.joinRoom(room)
-        sendMsgOther(room.toString(), ::joinRoom)
+        sendMsgOther(roomManager.getMe().toString(), ::joinRoom)
+        broadCastRoomInfo()
     }
 
     /**
@@ -76,6 +85,20 @@ class NetImpl(context: Context) : NetInterFace() {
      * 获取自己的名字
      */
     fun getMeName() = roomManager.getMe().name
+
+    /**
+     * 设置自己的名字
+     */
+    fun setMeName(name: String) {
+        roomManager.getMe().name = name
+    }
+
+    /**
+     * 设置自己的头像
+     */
+    fun setMeIcon(icon: Int) {
+        roomManager.getMe().icon = icon
+    }
 
     /**
      *获取房间内玩家
@@ -109,6 +132,7 @@ class NetImpl(context: Context) : NetInterFace() {
     fun startGame() {
         roomManager.getRoom().state++
         sendMsgOther("", ::startGame)
+        broadCastRoomInfo()
     }
 
     /**
@@ -119,10 +143,17 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
-     * 结束游戏
+     * 结束游戏(先退出房间)
      */
     fun stopGame() {
-        roomManager.getRoom().state = 0
+        exitRoom()
+    }
+
+    /**
+     * 广播房间信息，房间信息变化时主动推送：房间人数变化，房间状态变化
+     */
+    private fun broadCastRoomInfo() {
+        roomResult(roomManager.getRoomJson(), roomManager.getBroadCastAddress())
     }
 
     /**
@@ -130,17 +161,19 @@ class NetImpl(context: Context) : NetInterFace() {
      * 只要房间内人数大于0 ，则系统自动应答
      */
     override fun onFindRoom(pre: Char, msg: String, host: String) {
-        if (roomManager.getRoomUserCount() > 0) {
+        if (roomManager.getRoomUserCount() > 0 && host != roomManager.getMeIp()) {
             Log.e("host = ", host)
             roomResult(roomManager.getRoomJson(), host)
         }
     }
 
+
     /**
      * 收到加入房间指令，系统应答
      */
     override fun onJoinRoom(pre: Char, msg: String, host: String) {
-        roomManager.addUser(User(host, msg))
+        val user = Gson().fromJson<User>(msg, User::class.java)
+        roomManager.addUser(user)
     }
 
     /**

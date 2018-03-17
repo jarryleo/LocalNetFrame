@@ -20,7 +20,7 @@ fun Context.put(key: String, value: Any) {
     edit.apply()
 }
 
-fun Context.get(key: String, value: Any): Any {
+fun <T> Context.get(key: String, value: T): T {
     val sp = this.getSharedPreferences(sp_name, sp_mode)
     return when (value) {
         is String -> sp.getString(key, value)
@@ -28,5 +28,5 @@ fun Context.get(key: String, value: Any): Any {
         is Long -> sp.getLong(key, value)
         is Boolean -> sp.getBoolean(key, value)
         else -> value
-    }
+    } as T
 }

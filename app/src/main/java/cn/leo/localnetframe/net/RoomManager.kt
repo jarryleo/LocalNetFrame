@@ -4,22 +4,26 @@ import android.content.Context
 import cn.leo.localnet.manager.WifiLManager
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
+import cn.leo.localnetframe.utils.get
 
 /**
  * Created by Leo on 2018/3/12.
  */
 class RoomManager(context: Context) {
     private var room: Room = Room()
-    private var me: User
-    private var preIp: String
-    private var lastIp: String
+    private val me: User
+    private val ip: String = WifiLManager.getLocalIpAddress(context)
+    private val preIp: String
+    private val lastIp: String
 
     init {
-        val ip = WifiLManager.getLocalIpAddress(context)
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
         lastIp = ip.substring(lastIndexOf + 1)
-        me = User(ip, "灵魂画手$lastIp")
+        val nickname = context.get("nickname", "灵魂画手$lastIp")
+        val icon = context.get("icon", 3)
+        me = User(ip, nickname)
+        me.icon = icon
         initRoom()
     }
 
@@ -55,6 +59,13 @@ class RoomManager(context: Context) {
     }
 
     /**
+     *自己退出房间
+     */
+    fun exitRoom() {
+        initRoom()
+    }
+
+    /**
      * 获取房间json
      */
     fun getRoomJson() = room.toString()
@@ -72,7 +83,7 @@ class RoomManager(context: Context) {
     /**
      * 获取当前画画的人
      */
-    fun getRoomPainter() = room.users[room.painter]
+    fun getRoomPainter() = room.users[room.painter] ?: null
 
     /**
      * 我是不是房主，房主才能开始游戏
@@ -121,6 +132,11 @@ class RoomManager(context: Context) {
      * 获取自己对象
      */
     fun getMe() = me
+
+    /**
+     * 获取自己的ip
+     */
+    fun getMeIp() = ip
 
     /**
      * 获取ip段前三位地址

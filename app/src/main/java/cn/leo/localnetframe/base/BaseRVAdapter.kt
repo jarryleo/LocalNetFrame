@@ -27,6 +27,11 @@ abstract class BaseRVAdapter<T> : RecyclerView.Adapter<BaseRVHolder<T>>() {
         notifyDataSetChanged()
     }
 
+    fun removeData(t: T) {
+        mList.remove(t)
+        notifyDataSetChanged()
+    }
+
     fun clearData() {
         mList.clear()
         notifyDataSetChanged()
