@@ -30,7 +30,8 @@ class PopTips : PopupWindow {
                     .resources
                     .getColor(R.color.colorAccent))
         }
+        val x = anchor?.width?.div(2)
         val y = anchor?.height?.plus(contentView.measuredHeight)
-        super.showAsDropDown(anchor, 0, -y!!)
+        super.showAsDropDown(anchor, -x!!, -y!!)
     }
 }

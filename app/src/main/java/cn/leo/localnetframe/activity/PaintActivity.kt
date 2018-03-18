@@ -310,7 +310,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             }
             //发送分数
             netManager.sendMsgOther("U$user")
-            refreshUsers()
+            //refreshUsers()
         }
         //转发聊天信息
         netManager.sendMsgOther("C$msgBean")
@@ -338,8 +338,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         val findPositionForName = userAdapter?.findPositionForName(msg.name)
         val viewHolder = rvUserScoreList.
                 findViewHolderForAdapterPosition(findPositionForName!!)
-        popupTips?.showAsDropDown(viewHolder.itemView, msg)
+        if (viewHolder != null) {
+            popupTips?.showAsDropDown(viewHolder.itemView, msg)
+        }
         handler.postDelayed({ popupTips?.dismiss() }, 2000)
+        refreshUsers()
     }
 
     /**
@@ -356,6 +359,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             showAnswerDialog?.setMessage(answer)
             showAnswerDialog?.show()
         }
+        handler.postDelayed({ hideAnswer() }, 5000)
     }
 
     /**
