@@ -95,22 +95,29 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     }
 
     private fun countToDo(sec: Long) {
+        var tips = "T${word.length}个字"
         when (sec) {
             in 56L..Long.MAX_VALUE -> {
                 //发送第一个提示，几个字
-                netManager.sendMsgOther("T${word.length}个字")
+                tips = "T${word.length}个字"
             }
             in 6L..55L -> {
                 //发送第二个提示
-                netManager.sendMsgOther("T${word.length}个字,${wordChooser?.getTips()}")
+                tips = "T${word.length}个字,${wordChooser?.getTips()}"
             }
             5L -> {
                 //发送答案
-                netManager.sendMsgOther("A$word")
+                tips = "A$word"
             }
         }
-        //展示词汇
-        tvTitle.text = word
+        netManager.sendMsgOther(tips)
+        if (isMePaint) {
+            //展示词汇
+            tvTitle.text = word
+        } else {
+            //展示提示
+            tvTitle.text = tips
+        }
         //倒计时
         val time = sec - 5
         //预留5秒显示答案
