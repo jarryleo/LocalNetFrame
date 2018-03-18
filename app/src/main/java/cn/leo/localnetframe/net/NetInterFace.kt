@@ -41,6 +41,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
         open fun onNextPainter(pre: Char, msg: String, host: String) {}
         open fun onChat(pre: Char, msg: String, host: String) {}
         open fun onPaint(pre: Char, msg: String, host: String) {}
+        open fun onGetApHost(pre: Char, msg: String, host: String) {}
     }
 
 
@@ -106,6 +107,9 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
      * C 聊天
      * P 画画
      * H 心跳
+     * X 帮助热点主机找到自己的ip
+     * Y 热点主机询问自己的ip
+     * Z 应答热点主机的IP
      */
     private fun decode(data: ByteArray, length: Int, host: String) {
         val str = String(data, 0, length)
@@ -152,6 +156,15 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
             'N' -> {
                 onNextPainter(first, body, host)
             }
+            'X' -> {
+                sendData("Y", host)
+            }
+            'Y' -> {
+                sendData("Z$host", host)
+            }
+            'Z' -> {
+                onGetApHost(first, body, host)
+            }
             else -> {
             }
         }
@@ -197,6 +210,9 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
                 'P' -> {
                     onDataArrivedListener?.onPaint(pre, data, host)
                 }
+                'Z' -> {
+                    onDataArrivedListener?.onGetApHost(pre, data, host)
+                }
                 else -> {
                 }
             }
@@ -216,6 +232,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
     abstract fun onExitRoom(pre: Char, msg: String, host: String)
     abstract fun onNextPainter(pre: Char, msg: String, host: String)
     abstract fun onHeart(pre: Char, msg: String, host: String)
+    abstract fun onGetApHost(first: Char, body: String, host: String)
 
     open fun showAnswer(msg: String, host: String) {
         sendData("A$msg", host)
@@ -267,5 +284,9 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
 
     open fun heart(msg: String = "", host: String) {
         sendData("H${System.currentTimeMillis()}", host)
+    }
+
+    open fun broadCastHostAddress() {
+
     }
 }

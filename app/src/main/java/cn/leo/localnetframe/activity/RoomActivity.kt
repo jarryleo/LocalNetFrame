@@ -22,7 +22,7 @@ class RoomActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
-        netManager = MyApplication.getNetManager(dataReceiver)
+        netManager = MyApplication.getNetManager(dataReceiver)!!
         initData()
         initView()
     }
@@ -45,7 +45,7 @@ class RoomActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        netManager = MyApplication.getNetManager(dataReceiver)
+        netManager = MyApplication.getNetManager(dataReceiver)!!
     }
 
     private fun initView() {
@@ -104,6 +104,10 @@ class RoomActivity : AppCompatActivity() {
         }
 
         override fun onExitRoom(pre: Char, msg: String, host: String) {
+            refreshUsers()
+        }
+
+        override fun onGetApHost(pre: Char, msg: String, host: String) {
             refreshUsers()
         }
 

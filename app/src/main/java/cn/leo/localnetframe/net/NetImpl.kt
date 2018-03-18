@@ -3,6 +3,7 @@ package cn.leo.localnetframe.net
 import android.content.Context
 import android.os.Handler
 import android.util.Log
+import cn.leo.localnet.manager.ApManager
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
 import com.google.gson.Gson
@@ -24,6 +25,9 @@ class NetImpl(context: Context) : NetInterFace() {
             roomManager.getMe().heart = System.currentTimeMillis()
             handler.removeCallbacks(heartTask)
             handler.postDelayed(heartTask, 2000)
+            if (!ApManager.isApOn(context)) {
+                broadCastApInfo()
+            }
         }
         handler.postDelayed(heartTask, 2000)
     }
@@ -224,6 +228,13 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
+     * 广播热点IP段
+     */
+    private fun broadCastApInfo() {
+        sendData("X${roomManager.getPreIp()}", "${roomManager.getPreIp()}.255")
+    }
+
+    /**
      * 收到查找房间指令
      * 只要房间内人数大于0 ，则系统自动应答
      */
@@ -276,5 +287,12 @@ class NetImpl(context: Context) : NetInterFace() {
         roomManager.getSendMsgUser(host)?.heart = System.currentTimeMillis()
     }
 
-
+    /**
+     * 更新ip
+     */
+    override fun onGetApHost(first: Char, body: String, host: String) {
+        if (body != roomManager.getMeIp()) {
+            roomManager.setIp(body)
+        }
+    }
 }

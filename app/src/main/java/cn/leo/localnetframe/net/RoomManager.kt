@@ -1,7 +1,9 @@
 package cn.leo.localnetframe.net
 
 import android.content.Context
+import cn.leo.localnet.manager.ApManager
 import cn.leo.localnet.manager.WifiLManager
+import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.utils.get
@@ -12,11 +14,19 @@ import cn.leo.localnetframe.utils.get
 class RoomManager(context: Context) {
     private var room: Room = Room()
     private var me: User
-    private val ip: String = WifiLManager.getLocalIpAddress(context)
-    private val preIp: String
-    private val lastIp: String
+    private var ip: String
+    private var preIp: String
+    private var lastIp: String
 
     init {
+        ip = if (ApManager.isApOn(context)) {
+            ApManager.getHotspotIpAddress(context)
+        } else {
+            if (!WifiLManager.isWifiConnected(context)) {
+                ToastUtilK.show(context, "连接WIFI或者开启热点后才能正常游戏")
+            }
+            WifiLManager.getLocalIpAddress(context)
+        }
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
         lastIp = ip.substring(lastIndexOf + 1)
@@ -164,4 +174,15 @@ class RoomManager(context: Context) {
      * 获取ip段广播地址
      */
     fun getBroadCastAddress() = "$preIp.255"
+
+    /**
+     * 设置自己的ip，根据其它客户端告知的热点主机ip
+     */
+    fun setIp(host: String) {
+        ip = host
+        me.ip = ip
+        val lastIndexOf = ip.lastIndexOf(".")
+        preIp = ip.substring(0, lastIndexOf)
+        lastIp = ip.substring(lastIndexOf + 1)
+    }
 }

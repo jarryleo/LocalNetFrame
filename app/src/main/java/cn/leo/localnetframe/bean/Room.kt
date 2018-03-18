@@ -46,7 +46,14 @@ class Room() : Parcelable {
     fun getUserCount() = users.size
 
     //获取当前绘画玩家
-    fun getCurrentPainter(): User = users[painter]
+    fun getCurrentPainter(): User {
+        return if (users.size > painter) {
+            users[painter]
+        } else {
+            painter = 0
+            User("", "")
+        }
+    }
 
     //获取下一个画画的玩家
     fun getNextPainter(): User {

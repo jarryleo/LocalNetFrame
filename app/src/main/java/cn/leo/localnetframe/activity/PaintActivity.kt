@@ -67,7 +67,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_paint)
         drawBoard.onDrawListener = this
-        netManager = MyApplication.getNetManager(dataReceiver)
+        netManager = MyApplication.getNetManager(dataReceiver)!!
         initView()
         initData()
     }

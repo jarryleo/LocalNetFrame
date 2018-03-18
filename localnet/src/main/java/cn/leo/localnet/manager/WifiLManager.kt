@@ -15,7 +15,7 @@ object WifiLManager {
     /**
      * 判断wifi是否可用
      */
-    fun isWifiConected(context: Context): Boolean {
+    fun isWifiConnected(context: Context): Boolean {
         val mConnectivityManager = context
                 .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mWiFiNetworkInfo = mConnectivityManager
@@ -114,7 +114,7 @@ object WifiLManager {
      */
     fun getHotspotIpAddress(context: Context): String {
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val wifiinfo = wifiManager?.connectionInfo
+        val wifiinfo = wifiManager.connectionInfo
         if (wifiinfo != null) {
             val dhcpInfo = wifiManager.dhcpInfo
             if (dhcpInfo != null) {
@@ -136,7 +136,7 @@ object WifiLManager {
      */
     fun getLocalIpAddress(context: Context): String {
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val wifiinfo = wifiManager?.connectionInfo
+        val wifiinfo = wifiManager.connectionInfo
         if (wifiinfo != null) {
             val ipAddress = wifiinfo.ipAddress
             return ((ipAddress and 0xFF).toString()

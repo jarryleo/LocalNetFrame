@@ -16,13 +16,14 @@ class MyApplication : Application() {
 
     override fun onTerminate() {
         super.onTerminate()
-        netManager.stopNet()
+        netManager?.stopNet()
+        netManager = null
     }
 
     companion object {
-        private lateinit var netManager: NetImpl
-        fun getNetManager(dataListener: NetInterFace.OnDataArrivedListener): NetImpl {
-            netManager.setDataArrivedListener(dataListener)
+        private var netManager: NetImpl? = null
+        fun getNetManager(dataListener: NetInterFace.OnDataArrivedListener): NetImpl? {
+            netManager?.setDataArrivedListener(dataListener)
             return netManager
         }
     }
