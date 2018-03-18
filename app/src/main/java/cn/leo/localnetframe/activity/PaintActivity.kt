@@ -23,6 +23,7 @@ import cn.leo.localnetframe.net.NetInterFace
 import cn.leo.localnetframe.utils.WordChooser
 import cn.leo.localnetframe.view.ColorCircle
 import cn.leo.localnetframe.view.DrawBoard
+import cn.leo.localnetframe.view.PopTips
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
 import kotlinx.android.synthetic.main.layout_color_palette.*
@@ -43,6 +44,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private var rightUsers = ArrayList<User>() //答对的人
     private val handler = Handler()
     private lateinit var heartTask: Runnable
+    private var popupTips: PopTips? = null
 
     init {
         //定时任务，检测画画的人是否掉线
@@ -223,6 +225,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         cc01.setOnClickListener { drawBoard.setStrokeWidth(3f);hideColorLens() }
         cc02.setOnClickListener { drawBoard.setStrokeWidth(5f);hideColorLens() }
         cc03.setOnClickListener { drawBoard.setStrokeWidth(7f);hideColorLens() }
+        //聊天气泡
+        popupTips = PopTips(this)
     }
 
     //批量设置点击事件
@@ -331,6 +335,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private fun showMsg(msg: Msg) {
         chatAdapter?.addData(msg)
         rvMsgList.smoothScrollToPosition(chatAdapter?.itemCount!!)
+        val findPositionForName = userAdapter?.findPositionForName(msg.name)
+        val viewHolder = rvUserScoreList.
+                findViewHolderForAdapterPosition(findPositionForName!!)
+        popupTips?.showAsDropDown(viewHolder.itemView, msg)
+        handler.postDelayed({ popupTips?.dismiss() }, 2000)
     }
 
     /**

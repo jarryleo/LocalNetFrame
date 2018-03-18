@@ -16,6 +16,11 @@ class ScoreListAdapter(private val netImpl: NetImpl) : BaseRVAdapter<User>() {
     override fun getViewHolder(parent: ViewGroup?, viewType: Int): BaseRVHolder<User> {
         val view = LayoutInflater.from(parent?.context)
                 .inflate(R.layout.item_score, parent, false)
-        return ScoreListHolder(view,netImpl)
+        return ScoreListHolder(view, netImpl)
+    }
+
+    fun findPositionForName(name: String): Int {
+        mList.forEachIndexed { index, user -> if (user.name == name) return index }
+        return -1
     }
 }
