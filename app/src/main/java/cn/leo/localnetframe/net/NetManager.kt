@@ -269,7 +269,8 @@ class NetManager(private var context: Context) : UdpFrame.OnDataArrivedListener 
                 }
             }
             'H' -> {
-                room.users.takeWhile { it.ip == host }.forEach { it.heart = 0 }
+                room.users.takeWhile { it.ip == host }
+                        .forEach { it.heart = System.currentTimeMillis() }
             }
             'J' -> {
                 room.addUser(User(host, str.substring(1)))

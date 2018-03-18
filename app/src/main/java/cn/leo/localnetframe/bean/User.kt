@@ -27,7 +27,7 @@ data class User(var ip: String,
 
     //是否掉线
     fun isOffline(): Boolean {
-        val offline = System.currentTimeMillis() - heart > 5L * 1024
+        val offline = System.currentTimeMillis() - heart > 5L * 1000
         state = if (offline) {
             STATE_OFFLINE
         } else {

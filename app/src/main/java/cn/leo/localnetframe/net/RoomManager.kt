@@ -11,7 +11,7 @@ import cn.leo.localnetframe.utils.get
  */
 class RoomManager(context: Context) {
     private var room: Room = Room()
-    private val me: User
+    private var me: User
     private val ip: String = WifiLManager.getLocalIpAddress(context)
     private val preIp: String
     private val lastIp: String
@@ -43,6 +43,7 @@ class RoomManager(context: Context) {
     fun createRoom(id: String = lastIp) {
         initRoom(id)
         addUser(me)
+        me = room.users.find { it.ip == me.ip } ?: me
     }
 
     /**
@@ -56,6 +57,7 @@ class RoomManager(context: Context) {
     fun joinRoom(room: Room) {
         this.room = room
         addUser(me)
+        me = room.users.find { it.ip == me.ip } ?: me
     }
 
     /**
@@ -83,11 +85,12 @@ class RoomManager(context: Context) {
     /**
      * 获取当前画画的人
      */
-    fun getRoomPainter() = if (room.users.size > room.painter) {
-        room.users[room.painter]
-    } else {
-        me
-    }
+    fun getRoomPainter() = room.getCurrentPainter()
+
+    /**
+     * 获取下一个画画的人
+     */
+    fun getNextPainter() = room.getNextPainter()
 
     /**
      * 我是不是房主，房主才能开始游戏
@@ -97,7 +100,12 @@ class RoomManager(context: Context) {
     /**
      * 判断自己是不是画画的人
      */
-    fun meIsPainter() = me == getRoomPainter()
+    fun meIsPainter() = me == room.getCurrentPainter()
+
+    /**
+     * 判断自己是不是下一个画画的人
+     */
+    fun meIsNextPainter() = me == room.getNextPainter()
 
     /**
      * 找到刚刚发消息的人(进入房间之前的返回null)

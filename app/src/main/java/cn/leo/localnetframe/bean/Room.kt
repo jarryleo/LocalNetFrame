@@ -2,6 +2,7 @@ package cn.leo.localnetframe.bean
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import com.google.gson.Gson
 import java.util.*
 
@@ -15,6 +16,8 @@ class Room() : Parcelable {
     var state = 0
     //正在画画的玩家序号
     var painter = 0
+    //画画倒计时 秒
+    var countDownTime = 85
     //房间内用户列表
     var users = Collections.synchronizedList(ArrayList<User>())
 
@@ -22,6 +25,7 @@ class Room() : Parcelable {
         id = parcel.readString()
         state = parcel.readInt()
         painter = parcel.readInt()
+        countDownTime = parcel.readInt()
         parcel.readList(users, this.javaClass.classLoader)
     }
 
@@ -42,22 +46,43 @@ class Room() : Parcelable {
     fun getUserCount() = users.size
 
     //获取当前绘画玩家
-    fun getCurrentUser() = users[painter]
+    fun getCurrentPainter(): User = users[painter]
 
     //获取下一个画画的玩家
-    fun getNextUser() = if (painter >= getUserCount() - 1) {
-        users[0]
-    } else {
-        users[painter + 1]
+    fun getNextPainter(): User {
+        var count = 0
+        var p = painter + 1
+        if (p >= getUserCount() - 1) {
+            p = 0
+        }
+        var user = users[p]
+        while (user.isOffline() && count++ < 255) {
+            p++
+            if (p > getUserCount() - 1) {
+                p = 0
+            }
+            user = users[p]
+        }
+        return user
     }
 
     //控制权移交到下一个玩家(判断玩家不是离线状态 TODO)
     fun next() {
-        painter = if (painter >= getUserCount() - 1) {
+        var count = 0
+        moveNext()
+        val currentPainter = getCurrentPainter()
+        Log.e("room", this.toString())
+        Log.e("painter", currentPainter.toString())
+        while (currentPainter.isOffline() && count++ < 255) {
+            moveNext()
+        }
+    }
+
+    private fun moveNext() {
+        painter++
+        if (painter > getUserCount() - 1) {
+            painter = 0
             state++
-            0
-        } else {
-            painter + 1
         }
     }
 
@@ -75,6 +100,7 @@ class Room() : Parcelable {
         parcel.writeString(id)
         parcel.writeInt(state)
         parcel.writeInt(painter)
+        parcel.writeInt(countDownTime)
         parcel.writeList(users)
     }
 

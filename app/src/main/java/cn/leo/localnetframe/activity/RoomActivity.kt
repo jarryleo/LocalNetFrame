@@ -75,6 +75,7 @@ class RoomActivity : AppCompatActivity() {
     private fun startGame() {
         if (netManager.isGaming()) {
             startActivity(Intent(this, PaintActivity::class.java))
+            finish()
         } else if (netManager.getRoomUsers().size > 1) {
             if (netManager.meIsRoomOwner()) {
                 //发送开始游戏指令

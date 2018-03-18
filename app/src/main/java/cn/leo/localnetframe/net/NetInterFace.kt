@@ -22,7 +22,9 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
     /**
      * 停止网络服务
      */
-    fun stopNet() = this.udpFrame.stopNet()
+    open fun stopNet() {
+        this.udpFrame.stopNet()
+    }
 
     /**
      * 数据接收回调接口
@@ -159,7 +161,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
     /**
      * 通过接口返回数据
      */
-    fun dispatchData(pre: Char, data: String, host: String) {
+    private fun dispatchData(pre: Char, data: String, host: String) {
         if (onDataArrivedListener != null) {
             when (pre) {
                 'A' -> {

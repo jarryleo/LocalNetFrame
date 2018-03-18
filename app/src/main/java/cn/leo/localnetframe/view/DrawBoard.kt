@@ -26,9 +26,9 @@ class DrawBoard : View {
     //画笔粗细
     private var mStrokeWidth: Float = 3.0f
     //画布
-    private lateinit var mCanvas: Canvas
+    private var mCanvas = Canvas()
     //图像
-    private lateinit var mBitmap: Bitmap
+    private var mBitmap: Bitmap? = null
     //像素密度
     private var density = resources.displayMetrics.density
     //缩放等级(匹配不同机型的画板大小)
@@ -169,6 +169,7 @@ class DrawBoard : View {
      * 显示图案
      */
     private fun show() {
+        if (mBitmap == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             background = BitmapDrawable(null, mBitmap)
         } else {

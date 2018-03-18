@@ -1,6 +1,7 @@
 package cn.leo.localnetframe.net
 
 import android.content.Context
+import android.os.Handler
 import android.util.Log
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
@@ -11,6 +12,29 @@ import com.google.gson.Gson
  */
 class NetImpl(context: Context) : NetInterFace() {
     private val roomManager = RoomManager(context)
+    private val handler = Handler()
+    private lateinit var heartTask: Runnable
+
+    init {
+        //心跳任务
+        heartTask = Runnable {
+            if (roomManager.getRoomUserCount() > 1) {
+                sendMsgOther("", ::heart)
+            }
+            roomManager.getMe().heart = System.currentTimeMillis()
+            handler.removeCallbacks(heartTask)
+            handler.postDelayed(heartTask, 2000)
+        }
+        handler.postDelayed(heartTask, 2000)
+    }
+
+    /**
+     * 停止网络
+     */
+    override fun stopNet() {
+        handler.removeCallbacks(heartTask)
+        super.stopNet()
+    }
 
     /**
      * 发送消息给除了自己外房间的其他人
@@ -35,7 +59,12 @@ class NetImpl(context: Context) : NetInterFace() {
      * 发送消息给画画的人
      */
     fun sendMsgPainter(data: String) {
-        sendData(data, roomManager.getRoomPainter()!!.ip)
+        //如果房主掉线则发消息给下一个画画的人，下一个画画的人接管信息中转
+        if (roomManager.getRoomPainter().isOffline()) {
+            sendData(data, roomManager.getNextPainter()!!.ip)
+        } else {
+            sendData(data, roomManager.getRoomPainter()!!.ip)
+        }
     }
 
     /**
@@ -84,6 +113,11 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
+     * 获取房间
+     */
+    fun getRoom() = roomManager.getRoom()
+
+    /**
      * 获取房间号
      */
     fun getRoomId() = roomManager.getRoom().id
@@ -92,6 +126,16 @@ class NetImpl(context: Context) : NetInterFace() {
      * 获取自己的名字
      */
     fun getMeName() = roomManager.getMe().name
+
+    /**
+     * 获取自己的IP
+     */
+    fun getMeIp() = roomManager.getMeIp()
+
+    /**
+     * 获取自己对象
+     */
+    fun getMe() = roomManager.getMe()
 
     /**
      * 设置自己的名字
@@ -131,12 +175,17 @@ class NetImpl(context: Context) : NetInterFace() {
     /**
      * 我是不是房主，房主才能开始游戏
      */
-    fun meIsRoomOwner() = roomManager.meIsPainter()
+    fun meIsRoomOwner() = roomManager.meIsRoomOwner()
 
     /**
      * 判断自己是不是画画的人
      */
     fun meIsPainter() = roomManager.meIsPainter()
+
+    /**
+     * 判断自己是不是下一个画画的人
+     */
+    fun meIsNextPainter() = roomManager.meIsNextPainter()
 
     /**
      * 开始游戏
@@ -224,7 +273,7 @@ class NetImpl(context: Context) : NetInterFace() {
      * 收到心跳指令，系统处理
      */
     override fun onHeart(pre: Char, msg: String, host: String) {
-        roomManager.getSendMsgUser(host)?.heart = msg.toLong()
+        roomManager.getSendMsgUser(host)?.heart = System.currentTimeMillis()
     }
 
 
