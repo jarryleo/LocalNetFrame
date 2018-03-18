@@ -58,6 +58,7 @@ class RoomListActivity : AppCompatActivity() {
 
         adapter = RoomListAdapter()
         swipeRefresh.setOnRefreshListener {
+            netManager?.initNetWork(this)
             adapter?.clearData()
             netManager?.findRoom()
             refresh()

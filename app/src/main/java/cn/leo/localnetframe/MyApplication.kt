@@ -12,6 +12,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         netManager = NetImpl(this)
+        netManager?.initNetWork(this)
     }
 
     override fun onTerminate() {

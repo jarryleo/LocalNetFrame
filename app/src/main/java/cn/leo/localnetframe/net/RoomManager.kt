@@ -13,12 +13,16 @@ import cn.leo.localnetframe.utils.get
  */
 class RoomManager(context: Context) {
     private var room: Room = Room()
-    private var me: User
-    private var ip: String
-    private var preIp: String
-    private var lastIp: String
+    private lateinit var me: User
+    private lateinit var ip: String
+    private lateinit var preIp: String
+    private lateinit var lastIp: String
 
     init {
+        initNet(context)
+    }
+
+    fun initNet(context: Context) {
         ip = if (ApManager.isApOn(context)) {
             ApManager.getHotspotIpAddress(context)
         } else {
@@ -74,6 +78,7 @@ class RoomManager(context: Context) {
      *自己退出房间
      */
     fun exitRoom() {
+        me.score = 0
         initRoom()
     }
 

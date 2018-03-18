@@ -116,7 +116,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             tvTitle.text = word
         } else {
             //展示提示
-            tvTitle.text = tips
+            tvTitle.text = tips.substring(1)
         }
         //倒计时
         val time = sec - 5
@@ -169,6 +169,10 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             tvTitle.text = word
             //清空帮忙记录的答对人数
             rightUsers.clear()
+            //复位工作
+            hideAnswer()
+            drawBoard.clear()
+            hideColorLens()
             //房间倒计时复位
             netManager.getRoom().countDownTime = 85
             //开始倒计时
@@ -403,6 +407,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
         override fun onExitRoom(pre: Char, msg: String, host: String) {
             refreshUsers()
+            checkPlayer()
         }
 
         override fun onJoinRoom(pre: Char, msg: String, host: String) {

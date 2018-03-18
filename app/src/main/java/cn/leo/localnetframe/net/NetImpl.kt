@@ -33,6 +33,13 @@ class NetImpl(context: Context) : NetInterFace() {
     }
 
     /**
+     * 重置网络
+     */
+    fun initNetWork(context: Context) {
+        roomManager.initNet(context)
+    }
+
+    /**
      * 停止网络
      */
     override fun stopNet() {
