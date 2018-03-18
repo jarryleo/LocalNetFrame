@@ -134,6 +134,11 @@ class NetImpl(context: Context) : NetInterFace() {
     fun getRoomId() = roomManager.getRoom().id
 
     /**
+     *获取第几轮
+     */
+    fun getRoomRound() = roomManager.getRoom().state
+
+    /**
      * 获取自己的名字
      */
     fun getMeName() = roomManager.getMe().name

@@ -132,6 +132,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 showAnswer(word)
             }
         }
+        showRound()
     }
 
     /**
@@ -387,6 +388,13 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         tvTimer.text = time
     }
 
+    /**
+     * 显示第几轮
+     */
+    private fun showRound() {
+        tvRound.text = "第${netManager.getRoomRound()}轮"
+    }
+
     //发送画板数据
     override fun onDraw(code: String) {
         netManager.sendMsgOther("P$code")
@@ -453,6 +461,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         override fun onShowTips(pre: Char, msg: String, host: String) {
             //提示内容
             showTips(msg)
+            showRound()
         }
 
         override fun onCountDown(pre: Char, msg: String, host: String) {
@@ -466,5 +475,16 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 drawBoard.clear()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        AlertDialog.Builder(this)
+                .setTitle("退出游戏")
+                .setCancelable(true)
+                .setMessage("退出游戏会清空积分，确定退出吗？")
+                .setPositiveButton("退出") { _, _ -> finish() }
+                .setNegativeButton("取消") { dialog, _ -> dialog?.dismiss() }
+                .show()
+
     }
 }
