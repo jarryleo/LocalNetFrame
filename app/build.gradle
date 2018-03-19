@@ -16,7 +16,10 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -35,4 +38,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     implementation project(':localnet')
     implementation project(':library_CircleRecyclerView')
+    compile 'com.tencent.bugly:crashreport_upgrade:latest.release'
 }

@@ -140,6 +140,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         countDownTimer = object : CountDownTimer(
                 netManager.getRoom().countDownTime * 1000L, 1000) {
             override fun onFinish() {
+                showCountDown("0")
                 nextPlayer()
             }
 

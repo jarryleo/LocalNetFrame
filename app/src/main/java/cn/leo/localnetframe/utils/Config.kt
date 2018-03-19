@@ -8,4 +8,6 @@ object Config {
     const val roundTime = 10
     //游戏进行几轮 3
     const val gameCount = 3
+    // bugly id
+    const val buglyId = "bec23720c9"
 }
