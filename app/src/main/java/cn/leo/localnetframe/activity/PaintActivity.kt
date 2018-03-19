@@ -3,6 +3,7 @@ package cn.leo.localnetframe.activity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
@@ -22,6 +23,7 @@ import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
 import cn.leo.localnetframe.utils.Config
+import cn.leo.localnetframe.utils.SoundsUtil
 import cn.leo.localnetframe.utils.WordChooser
 import cn.leo.localnetframe.view.*
 import com.google.gson.Gson
@@ -45,6 +47,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private lateinit var heartTask: Runnable
     private var popupTips: PopTips? = null
     private var answerDialog: AnswerDialog = AnswerDialog()
+    private var soundsUtil: SoundsUtil? = null
 
     init {
         //定时任务，检测画画的人是否掉线
@@ -71,7 +74,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         drawBoard.onDrawListener = this
         netManager = MyApplication.getNetManager(dataReceiver)!!
         initView()
-        initData()
+        Looper.myQueue().addIdleHandler { initData(); false }
     }
 
     private fun initView() {
@@ -127,10 +130,12 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     override fun onSlipper() {
         netManager.sendOpinion("S")
         showGift(2)
+        soundsUtil?.playSound(R.raw.pa, false)
     }
 
     private fun initData() {
         wordChooser = WordChooser(this)
+        soundsUtil = SoundsUtil(this)
         refreshUsers()
         checkPlayer()
     }
@@ -187,6 +192,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 if (isMePaint) {
                     //公布结果
                     drawBoard.lock = true
+                    soundsUtil?.playSound(R.raw.aoao, false)
                     ToastUtilK.show(this, "时间到,5秒后下一个人开始画画")
                 } else {
                     showAnswer(word)
@@ -248,6 +254,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             netManager.sendMsgOther("S$word")
             //提示我开始画画
             ToastUtilK.show(this, "轮到我开始画画了")
+            //播放提示音
+            soundsUtil?.playSound(R.raw.gogogo, false)
         }
         drawBoard.lock = !isMePaint
     }
@@ -454,6 +462,10 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             refreshUsers()
             val user = Gson().fromJson<User>(msg, User::class.java)
             rightUsers.add(user)
+            //我答对了声音
+            if (user == netManager.getMe()) {
+                soundsUtil?.playSound(R.raw.right, false)
+            }
         }
 
         override fun onNextPainter(pre: Char, msg: String, host: String) {
@@ -495,6 +507,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 "S" -> {
                     //收到拖鞋
                     showGift(2)
+                    soundsUtil?.playSound(R.raw.pa, false)
                 }
             }
         }
