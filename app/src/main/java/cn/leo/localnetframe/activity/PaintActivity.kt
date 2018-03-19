@@ -3,6 +3,7 @@ package cn.leo.localnetframe.activity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -20,15 +21,14 @@ import cn.leo.localnetframe.bean.Msg
 import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
+import cn.leo.localnetframe.utils.Config
 import cn.leo.localnetframe.utils.WordChooser
-import cn.leo.localnetframe.view.ColorCircle
-import cn.leo.localnetframe.view.DrawBoard
-import cn.leo.localnetframe.view.PopTips
+import cn.leo.localnetframe.view.*
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
 import kotlinx.android.synthetic.main.layout_color_palette.*
 
-class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle.OnColorClickListener {
+class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle.OnColorClickListener, AnswerDialog.OnOpinionClickListener {
 
     private lateinit var netManager: NetImpl
     private val dataReceiver = DataReceiver()
@@ -40,11 +40,11 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     private var countDownTimer: CountDownTimer? = null
     private var word: String = "测试"
     private var isMePaint: Boolean = false
-    private var showAnswerDialog: AlertDialog? = null
     private var rightUsers = ArrayList<User>() //答对的人
     private val handler = Handler()
     private lateinit var heartTask: Runnable
     private var popupTips: PopTips? = null
+    private var answerDialog: AnswerDialog = AnswerDialog()
 
     init {
         //定时任务，检测画画的人是否掉线
@@ -72,6 +72,61 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         netManager = MyApplication.getNetManager(dataReceiver)!!
         initView()
         initData()
+    }
+
+    private fun initView() {
+        //保持屏幕常亮
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        //初始聊天信息和玩家列表
+        chatAdapter = MsgListAdapter()
+        userAdapter = ScoreListAdapter(netManager)
+        rvMsgList.layoutManager = LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false)
+        rvUserScoreList.layoutManager = LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false)
+        rvMsgList.adapter = chatAdapter
+        rvUserScoreList.adapter = userAdapter
+        //发送消息按钮
+        btnSendMsg.setOnClickListener {
+            sendMsgClick()
+        }
+
+        //调色板位置
+        widthPixels = resources.displayMetrics.widthPixels
+        density = resources.displayMetrics.density
+        hideColorLens()
+        btnColorLens.setOnClickListener {
+            if (netManager.meIsPainter()) {
+                if (llColorLens.x + llColorLens.width <= widthPixels) {
+                    hideColorLens()
+                } else {
+                    showColorLens()
+                }
+            }
+        }
+        //调色板按钮点击事件
+        click(cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8, cc9, cc10, cc11, cc12)
+        btnUndo.setOnClickListener { drawBoard.undo() }
+        btnUndo.setOnLongClickListener { drawBoard.clear(); true }
+        cc01.setOnClickListener { drawBoard.setStrokeWidth(3f);hideColorLens() }
+        cc02.setOnClickListener { drawBoard.setStrokeWidth(5f);hideColorLens() }
+        cc03.setOnClickListener { drawBoard.setStrokeWidth(7f);hideColorLens() }
+        //聊天气泡
+        popupTips = PopTips(this)
+        //显示答案界面
+        answerDialog.setOnOpinionClickListenrt(this)
+    }
+
+    //送鲜花
+    override fun onFLower() {
+        netManager.sendOpinion("F")
+        showGift(1)
+    }
+
+    //丢拖鞋
+    override fun onSlipper() {
+        netManager.sendOpinion("S")
+        showGift(2)
     }
 
     private fun initData() {
@@ -128,9 +183,16 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             //同步倒计时
             netManager.sendMsgOther("D$time")
             if (time == 0L) {
-                //公布结果
-                showAnswer(word)
+                if (isMePaint) {
+                    //公布结果
+                    drawBoard.lock = true
+                    ToastUtilK.show(this, "时间到,5秒后下一个人开始画画")
+                } else {
+                    showAnswer(word)
+                }
             }
+        } else {
+            showCountDown(sec.toString())
         }
         showRound()
     }
@@ -153,7 +215,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(heartTask)
+        handler.removeCallbacksAndMessages(null)
         countDownTimer?.cancel()
         netManager.stopGame()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -177,7 +239,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             drawBoard.clear()
             hideColorLens()
             //房间倒计时复位
-            netManager.getRoom().countDownTime = 85
+            netManager.getRoom().countDownTime = Config.roundTime
             //开始倒计时
             countDown()
             //通知其他人清空上次画画的内容,并同步倒计时
@@ -187,47 +249,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             ToastUtilK.show(this, "轮到我开始画画了")
         }
         drawBoard.lock = !isMePaint
-    }
-
-    private fun initView() {
-        //保持屏幕常亮
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        //初始聊天信息和玩家列表
-        chatAdapter = MsgListAdapter()
-        userAdapter = ScoreListAdapter(netManager)
-        rvMsgList.layoutManager = LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false)
-        rvUserScoreList.layoutManager = LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL, false)
-        rvMsgList.adapter = chatAdapter
-        rvUserScoreList.adapter = userAdapter
-        //发送消息按钮
-        btnSendMsg.setOnClickListener {
-            sendMsgClick()
-        }
-
-        //调色板位置
-        widthPixels = resources.displayMetrics.widthPixels
-        density = resources.displayMetrics.density
-        hideColorLens()
-        btnColorLens.setOnClickListener {
-            if (netManager.meIsPainter()) {
-                if (llColorLens.x + llColorLens.width <= widthPixels) {
-                    hideColorLens()
-                } else {
-                    showColorLens()
-                }
-            }
-        }
-        //调色板按钮点击事件
-        click(cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8, cc9, cc10, cc11, cc12)
-        btnUndo.setOnClickListener { drawBoard.undo() }
-        btnUndo.setOnLongClickListener { drawBoard.clear(); true }
-        cc01.setOnClickListener { drawBoard.setStrokeWidth(3f);hideColorLens() }
-        cc02.setOnClickListener { drawBoard.setStrokeWidth(5f);hideColorLens() }
-        cc03.setOnClickListener { drawBoard.setStrokeWidth(7f);hideColorLens() }
-        //聊天气泡
-        popupTips = PopTips(this)
     }
 
     //批量设置点击事件
@@ -281,7 +302,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 showMsg(msgBean)
             } else {
                 if ((netManager.getPainter().isOffline()
-                        && netManager.meIsNextPainter())) {
+                                && netManager.meIsNextPainter())) {
                     //获取答题人
                     val user = netManager.getMe()
                     checkAnswer(msgBean, user)
@@ -337,8 +358,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         chatAdapter?.addData(msg)
         rvMsgList.smoothScrollToPosition(chatAdapter?.itemCount!!)
         val findPositionForName = userAdapter?.findPositionForName(msg.name)
-        val viewHolder = rvUserScoreList.
-                findViewHolderForAdapterPosition(findPositionForName!!)
+        val viewHolder = rvUserScoreList.findViewHolderForAdapterPosition(findPositionForName!!)
         if (viewHolder != null) {
             popupTips?.showAsDropDown(viewHolder.itemView, msg)
         }
@@ -350,16 +370,9 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
      * 显示答案
      */
     private fun showAnswer(answer: String) {
-        if (showAnswerDialog == null) {
-            showAnswerDialog = AlertDialog.Builder(this)
-                    .setTitle("答案是：")
-                    .setCancelable(false)
-                    .setMessage(answer)
-                    .show()
-        } else {
-            showAnswerDialog?.setMessage(answer)
-            showAnswerDialog?.show()
-        }
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+        answerDialog.show(transaction, answer)
         handler.postDelayed({ hideAnswer() }, 5000)
     }
 
@@ -367,11 +380,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
      * 隐藏答案
      */
     private fun hideAnswer() {
-        if (showAnswerDialog != null) {
-            if (showAnswerDialog?.isShowing!!) {
-                showAnswerDialog?.hide()
-            }
-        }
+        answerDialog.dismiss()
     }
 
     /**
@@ -475,6 +484,24 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 drawBoard.clear()
             }
         }
+
+        override fun onGetOpinion(pre: Char, msg: String, host: String) {
+            when (msg) {
+                "F" -> {
+                    //收到鲜花
+                    showGift(1)
+                }
+                "S" -> {
+                    //收到拖鞋
+                    showGift(2)
+                }
+            }
+        }
+    }
+
+    private fun showGift(type: Int) {
+        val giftDialog = GiftDialog()
+        giftDialog.show(supportFragmentManager.beginTransaction(), type)
     }
 
     override fun onBackPressed() {

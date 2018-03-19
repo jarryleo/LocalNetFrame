@@ -72,9 +72,9 @@ class NetImpl(context: Context) : NetInterFace() {
     fun sendMsgPainter(data: String) {
         //如果房主掉线则发消息给下一个画画的人，下一个画画的人接管信息中转
         if (roomManager.getRoomPainter().isOffline()) {
-            sendData(data, roomManager.getNextPainter()!!.ip)
+            sendData(data, roomManager.getNextPainter().ip)
         } else {
-            sendData(data, roomManager.getRoomPainter()!!.ip)
+            sendData(data, roomManager.getRoomPainter().ip)
         }
     }
 
@@ -218,6 +218,15 @@ class NetImpl(context: Context) : NetInterFace() {
     fun nextPainter() {
         roomManager.getRoom().next()
         sendMsgOther("", ::nextPainter)
+    }
+
+    /**
+     * 送鲜花或拖鞋 F , S
+     */
+    fun sendOpinion(msg: String) {
+        if (!meIsPainter()) {
+            opinion(msg, roomManager.getRoomPainter().ip)
+        }
     }
 
     /**

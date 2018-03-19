@@ -3,6 +3,7 @@ package cn.leo.localnetframe.bean
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
+import cn.leo.localnetframe.utils.Config
 import com.google.gson.Gson
 import java.util.*
 
@@ -17,7 +18,7 @@ class Room() : Parcelable {
     //正在画画的玩家序号
     var painter = 0
     //画画倒计时 秒
-    var countDownTime = 85
+    var countDownTime = Config.roundTime
     //房间内用户列表
     var users = Collections.synchronizedList(ArrayList<User>())
 

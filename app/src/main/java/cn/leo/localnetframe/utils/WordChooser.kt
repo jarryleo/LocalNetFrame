@@ -8,8 +8,8 @@ import java.util.*
  * Created by Leo on 2018/3/2.
  */
 class WordChooser(val context: Context) {
-    lateinit var words: List<String>
-    lateinit var mWord: String
+    private lateinit var words: List<String>
+    private lateinit var mWord: String
 
     init {
         loadFile()

@@ -42,6 +42,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
         open fun onChat(pre: Char, msg: String, host: String) {}
         open fun onPaint(pre: Char, msg: String, host: String) {}
         open fun onGetApHost(pre: Char, msg: String, host: String) {}
+        open fun onGetOpinion(pre: Char, msg: String, host: String) {}
     }
 
 
@@ -106,6 +107,7 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
      * N 下一个开始游戏
      * C 聊天
      * P 画画
+     * O 送鲜花或者拖鞋 OF,OS
      * H 心跳
      * X 帮助热点主机找到自己的ip
      * Y 热点主机询问自己的ip
@@ -213,6 +215,9 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
                 'Z' -> {
                     onDataArrivedListener?.onGetApHost(pre, data, host)
                 }
+                'O' -> {
+                    onDataArrivedListener?.onGetOpinion(pre, data, host)
+                }
                 else -> {
                 }
             }
@@ -280,6 +285,10 @@ abstract class NetInterFace : UdpFrame.OnDataArrivedListener {
 
     open fun paint(msg: String, host: String) {
         sendData("P$msg", host)
+    }
+
+    open fun opinion(msg: String, host: String) {
+        sendData("O$msg", host)
     }
 
     open fun heart(msg: String = "", host: String) {
