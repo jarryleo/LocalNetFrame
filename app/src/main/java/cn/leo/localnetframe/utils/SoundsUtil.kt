@@ -1,19 +1,24 @@
 package cn.leo.localnetframe.utils
 
-import android.content.Context
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
 import android.media.AudioManager
 import android.media.SoundPool
+import android.support.v7.app.AppCompatActivity
 import cn.leo.localnetframe.R
 import java.util.concurrent.ConcurrentHashMap
+
 
 /**
  * Created by Leo on 2018/3/19.
  */
-class SoundsUtil(private val context: Context) {
+class SoundsUtil(private val context: AppCompatActivity) : LifecycleObserver {
     private val sp = SoundPool(10, AudioManager.STREAM_MUSIC, 0)
     private val sounds = ConcurrentHashMap<Int, Int>()
 
     init {
+        context.lifecycle.addObserver(this)
         val sounds = arrayListOf(R.raw.aoao, R.raw.gogogo, R.raw.pa, R.raw.right)
         sounds.forEach { loadSoundRsID(it) }
     }
@@ -60,5 +65,10 @@ class SoundsUtil(private val context: Context) {
                 sp.setOnLoadCompleteListener(null)
             })
         }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
+        sp.release()
     }
 }

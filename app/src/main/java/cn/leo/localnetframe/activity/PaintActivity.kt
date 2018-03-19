@@ -311,7 +311,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 showMsg(msgBean)
             } else {
                 if ((netManager.getPainter().isOffline()
-                                && netManager.meIsNextPainter())) {
+                        && netManager.meIsNextPainter())) {
                     //获取答题人
                     val user = netManager.getMe()
                     checkAnswer(msgBean, user)
@@ -348,8 +348,23 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         showMsg(msgBean)
         //下一个玩家开始游戏
         if (allRight) {
-            nextPlayer()
+            allPlayerAnswerRight()
         }
+    }
+
+    //全部玩家答对
+    private fun allPlayerAnswerRight() {
+        netManager.sendMsgOther("A$word")
+        if (isMePaint) {
+            //公布结果
+            drawBoard.lock = true
+            soundsUtil?.playSound(R.raw.aoao, false)
+            ToastUtilK.show(this, "全部人答对了,5秒后下一个人开始画画")
+            countDownTimer?.cancel()
+        } else {
+            showAnswer(word)
+        }
+        handler.postDelayed({ nextPlayer() }, 5000)
     }
 
     //刷新用户分数
