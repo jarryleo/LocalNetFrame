@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.*
 import cn.leo.localnetframe.R
+import cn.leo.localnetframe.utils.SoundsUtil
 import kotlinx.android.synthetic.main.dialog_gift.view.*
 
 
@@ -19,6 +20,8 @@ import kotlinx.android.synthetic.main.dialog_gift.view.*
 class GiftDialog : DialogFragment() {
     //1 鲜花，2 拖鞋
     private var type = 1
+    //声音池
+    private var soundsUtil: SoundsUtil? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = activity.layoutInflater
@@ -41,22 +44,15 @@ class GiftDialog : DialogFragment() {
         return dialog
     }
 
-    fun show(transaction: FragmentTransaction?, tag: Int) {
+    fun show(transaction: FragmentTransaction?, tag: Int, sound: SoundsUtil) {
         type = tag
+        soundsUtil = sound
         super.show(transaction, "gift")
     }
 
-    private val animListener = object : Animation.AnimationListener {
-        override fun onAnimationRepeat(animation: Animation?) {
-
-        }
-
+    private val animListener = object : AnimListener() {
         override fun onAnimationEnd(animation: Animation?) {
             dismiss()
-        }
-
-        override fun onAnimationStart(animation: Animation?) {
-
         }
     }
 
@@ -83,7 +79,8 @@ class GiftDialog : DialogFragment() {
                 0.5f,
                 Animation.RELATIVE_TO_SELF,
                 1.0f)
-        s.duration = 2000
+        s.duration = 1500
+        s.startOffset = 500
         animSet.addAnimation(s)
         view.startAnimation(animSet)
     }
@@ -92,16 +89,23 @@ class GiftDialog : DialogFragment() {
     private fun animationSlipper(view: View) {
         val animSet = AnimationSet(false)
         animSet.setAnimationListener(animListener)
-        animSet.duration = 2000
+        animSet.duration = 500
         val s = ScaleAnimation(
-                2.0f, 1.0f,
-                2.0f, 1.0f,
+                3.0f, 1.0f,
+                3.0f, 1.0f,
                 Animation.RELATIVE_TO_SELF,
                 0.5f,
                 Animation.RELATIVE_TO_SELF,
                 0.5f)
-        s.duration = 1000
+        s.duration = 800
         animSet.addAnimation(s)
+        val r = RotateAnimation(0f, 360f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f)
+        r.duration = 800
+        animSet.addAnimation(r)
         val t = TranslateAnimation(
                 Animation.RELATIVE_TO_PARENT,
                 0.0f,
@@ -111,9 +115,35 @@ class GiftDialog : DialogFragment() {
                 0.0f,
                 Animation.RELATIVE_TO_PARENT,
                 1.0f)
-        t.duration = 2000
-        t.interpolator = AnticipateInterpolator()
-        animSet.addAnimation(t)
+        t.duration = 1200
+        t.interpolator = AccelerateInterpolator()
+        setEndAnimListener(animSet, {
+            soundsUtil?.playSound(R.raw.pa, false)
+            view.startAnimation(t)
+        })
+        t.setAnimationListener(animListener)
         view.startAnimation(animSet)
+    }
+
+
+    private fun setEndAnimListener(animation: Animation, listener: () -> Unit) {
+        animation.setAnimationListener(object : AnimListener() {
+            override fun onAnimationEnd(animation: Animation?) {
+                listener()
+            }
+        })
+    }
+
+
+    open inner class AnimListener : Animation.AnimationListener {
+        override fun onAnimationRepeat(animation: Animation?) {
+        }
+
+        override fun onAnimationEnd(animation: Animation?) {
+        }
+
+        override fun onAnimationStart(animation: Animation?) {
+        }
+
     }
 }

@@ -5,7 +5,7 @@ package cn.leo.localnetframe.utils
  */
 object Config {
     //一局时间 85
-    const val roundTime = 85
+    const val roundTime = 80
     //游戏进行几轮 3
     const val gameCount = 3
     // bugly id

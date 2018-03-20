@@ -130,7 +130,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
     override fun onSlipper() {
         netManager.sendOpinion("S")
         showGift(2)
-        soundsUtil?.playSound(R.raw.pa, false)
     }
 
     private fun initData() {
@@ -311,7 +310,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 showMsg(msgBean)
             } else {
                 if ((netManager.getPainter().isOffline()
-                        && netManager.meIsNextPainter())) {
+                                && netManager.meIsNextPainter())) {
                     //获取答题人
                     val user = netManager.getMe()
                     checkAnswer(msgBean, user)
@@ -522,7 +521,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 "S" -> {
                     //收到拖鞋
                     showGift(2)
-                    soundsUtil?.playSound(R.raw.pa, false)
                 }
             }
         }
@@ -530,7 +528,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
     private fun showGift(type: Int) {
         val giftDialog = GiftDialog()
-        giftDialog.show(supportFragmentManager.beginTransaction(), type)
+        giftDialog.show(supportFragmentManager.beginTransaction(), type, soundsUtil!!)
     }
 
     override fun onBackPressed() {
