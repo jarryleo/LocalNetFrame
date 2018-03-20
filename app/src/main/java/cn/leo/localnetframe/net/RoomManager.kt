@@ -6,6 +6,7 @@ import cn.leo.localnet.manager.WifiLManager
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.bean.User
+import cn.leo.localnetframe.utils.Config
 import cn.leo.localnetframe.utils.get
 
 /**
@@ -34,8 +35,8 @@ class RoomManager(context: Context) {
         val lastIndexOf = ip.lastIndexOf(".")
         preIp = ip.substring(0, lastIndexOf)
         lastIp = ip.substring(lastIndexOf + 1)
-        val nickname = context.get("nickname", "灵魂画手$lastIp")
-        val icon = context.get("icon", 3)
+        val nickname = context.get(Config.NICKNAME, "灵魂画手$lastIp")
+        val icon = context.get(Config.ICON, 3)
         me = User(ip, nickname)
         me.icon = icon
         initRoom()

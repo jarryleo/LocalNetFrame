@@ -11,9 +11,12 @@ import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.adapter.RoomListAdapter
+import cn.leo.localnetframe.bean.Icons
 import cn.leo.localnetframe.bean.Room
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
+import cn.leo.localnetframe.utils.Config
+import cn.leo.localnetframe.utils.get
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room_list.*
 
@@ -27,6 +30,7 @@ class RoomListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_room_list)
         netManager = MyApplication.getNetManager(dataReceiver)
         initView()
+        initData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -51,10 +55,19 @@ class RoomListActivity : AppCompatActivity() {
         netManager = MyApplication.getNetManager(dataReceiver)
         adapter?.clearData()
         netManager?.findRoom()
+        initData()
+    }
+
+    private fun initData() {
+        tvName.text = netManager?.getMeName()
+        val score = get(Config.SCORE, 0).toString()
+        tvScore.text = getString(R.string.room_list_user_score, score)
+        val icon = get(Config.ICON, 0)
+        ivHeadIcon.setImageResource(Icons.getIconList()[icon])
     }
 
     private fun initView() {
-        title = "当前WIFI网络大厅"
+        title = "当前WIFI网络房间列表"
 
         adapter = RoomListAdapter()
         swipeRefresh.setOnRefreshListener {

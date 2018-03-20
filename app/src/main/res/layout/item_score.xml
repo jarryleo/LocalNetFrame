@@ -21,6 +21,15 @@
             android:layout_centerInParent="true"
             android:src="@drawable/icon_head_1"/>
 
+        <ImageView
+            android:id="@+id/ivBrush"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:src="@drawable/brush"/>
+
         <TextView
             android:id="@+id/tvScore"
             android:layout_width="wrap_content"

@@ -22,9 +22,7 @@ import cn.leo.localnetframe.bean.Msg
 import cn.leo.localnetframe.bean.User
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
-import cn.leo.localnetframe.utils.Config
-import cn.leo.localnetframe.utils.SoundsUtil
-import cn.leo.localnetframe.utils.WordChooser
+import cn.leo.localnetframe.utils.*
 import cn.leo.localnetframe.view.*
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
@@ -333,6 +331,12 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
                 //给第一次答对的人加分
                 user.score += 1
                 rightUsers.add(user)
+                //我答对了声音
+                if (user == netManager.getMe()) {
+                    soundsUtil?.playSound(R.raw.right, false)
+                    val score = get(Config.SCORE, 0)
+                    put(Config.SCORE, score + 1)
+                }
                 if (rightUsers.size >= netManager.getRoomUsers().size - 1) {
                     //每个人都答对了下一个玩家开始游戏
                     allRight = true
@@ -479,6 +483,8 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
             //我答对了声音
             if (user == netManager.getMe()) {
                 soundsUtil?.playSound(R.raw.right, false)
+                val score = get(Config.SCORE, 0)
+                put(Config.SCORE, score + 1)
             }
         }
 

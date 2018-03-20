@@ -3,7 +3,7 @@ package cn.leo.localnetframe.activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.localnetframe.MyApplication
@@ -52,7 +52,8 @@ class RoomActivity : AppCompatActivity() {
         adapter = UserListAdapter()
         refreshUsers()
         rvUserList.layoutManager =
-                GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+                LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        //GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         rvUserList.adapter = adapter
         btnStartGame.setOnClickListener {
             startGame()

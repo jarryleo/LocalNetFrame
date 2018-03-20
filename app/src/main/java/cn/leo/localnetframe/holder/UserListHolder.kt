@@ -1,6 +1,7 @@
 package cn.leo.localnetframe.holder
 
 import android.view.View
+import cn.leo.localnetframe.R
 import cn.leo.localnetframe.base.BaseRVHolder
 import cn.leo.localnetframe.bean.Icons
 import cn.leo.localnetframe.bean.User
@@ -14,6 +15,6 @@ class UserListHolder(itemView: View) : BaseRVHolder<User>(itemView) {
         val icon = Icons.getIconList()[t.icon % Icons.getIconList().size]
         itemView.ivIcon.setImageResource(icon)
         itemView.tvName.text = t.name
-        itemView.tvIp.text = t.ip
+        itemView.tvIp.text = mContext.getString(R.string.ip_address, t.ip)
     }
 }

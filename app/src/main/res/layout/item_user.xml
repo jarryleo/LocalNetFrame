@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:background="@color/colorBackGround"
     app:cardUseCompatPadding="true"
     app:contentPadding="8dp">
 
@@ -33,14 +34,14 @@
                 android:maxLines="2"
                 android:text="@string/user_name"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="16sp"/>
+                android:textSize="18sp"/>
 
             <TextView
                 android:id="@+id/tvIp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/id_address"
+                android:text="@string/ip_address"
                 android:textSize="14sp"
                 app:layout_constraintTop_toBottomOf="@+id/tvRoomId"/>
         </LinearLayout>

@@ -11,6 +11,7 @@ import cn.leo.localnetframe.adapter.GalleryAdapter
 import cn.leo.localnetframe.bean.Icons
 import cn.leo.localnetframe.net.NetImpl
 import cn.leo.localnetframe.net.NetInterFace
+import cn.leo.localnetframe.utils.Config
 import cn.leo.localnetframe.utils.get
 import cn.leo.localnetframe.utils.put
 import kotlinx.android.synthetic.main.activity_setting.*
@@ -41,8 +42,8 @@ class SettingActivity : AppCompatActivity() {
             iconIndex = index
             iv_head.setImageResource(icons[index])
         }
-        val ic = get("icon", 3)
-        val nickname = get("nickname", "")
+        val ic = get(Config.ICON, 3)
+        val nickname = get(Config.NICKNAME, "")
         val icon = icons[ic]
         iv_head.setImageResource(icon)
         et_nickname.setText(nickname)
@@ -61,8 +62,8 @@ class SettingActivity : AppCompatActivity() {
                 ToastUtilK.show(this, "请输入昵称")
                 return@setOnClickListener
             }
-            put("icon", iconIndex)
-            put("nickname", nickname)
+            put(Config.ICON, iconIndex)
+            put(Config.NICKNAME, nickname)
             netManager?.setMeIcon(iconIndex)
             netManager?.setMeName(nickname)
             ToastUtilK.show(this, "设置完成")

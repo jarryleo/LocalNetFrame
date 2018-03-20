@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">你画我猜-WIFI版</string>
     <string name="author_jarry_leo">author：Jarry Leo</string>
-    <string name="room_id">房间号:%1$s</string>
+    <string name="room_id">房间号：%1$s</string>
     <string name="user_count">(人数：%1$s)</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="user_name">玩家：%1$s</string>
-    <string name="id_address">IP地址：%1$s</string>
+    <string name="ip_address">IP地址：%1$s</string>
     <string name="start_game">开始游戏</string>
     <string name="chat_edit_hint">输入聊天信息或答案</string>
     <string name="setting_nickname">昵称</string>
     <string name="setting_btn_save">保存</string>
     <string name="item_room_enter">加入房间</string>
+    <string name="room_list_user_score">战绩：%1$s</string>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import cn.leo.localnetframe.R
+import cn.leo.localnetframe.utils.Config
 import cn.leo.localnetframe.utils.get
 
 class SplashActivity : AppCompatActivity() {
@@ -23,7 +24,7 @@ class SplashActivity : AppCompatActivity() {
     private var runnable = Runnable { openActivity() }
 
     private fun openActivity() {
-        var icon = get("icon", -1)
+        var icon = get(Config.ICON, -1)
         if (icon == -1) {
             startActivity(Intent(this, SettingActivity::class.java))
         } else {
