@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import cn.leo.localnet.BuildConfig
 import cn.leo.localnetframe.R
 import cn.leo.localnetframe.utils.Config
 import cn.leo.localnetframe.utils.get
+import kotlinx.android.synthetic.main.content_splash.*
 
 class SplashActivity : AppCompatActivity() {
     private val handler = Handler()
@@ -14,6 +16,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        tvVersion.text = BuildConfig.VERSION_NAME
         countDown()
     }
 

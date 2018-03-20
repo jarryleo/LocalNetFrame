@@ -12,4 +12,5 @@
     <string name="setting_btn_save">保存</string>
     <string name="item_room_enter">加入房间</string>
     <string name="room_list_user_score">战绩：%1$s</string>
+    <string name="splash_version">v%1$s</string>
 </resources>
