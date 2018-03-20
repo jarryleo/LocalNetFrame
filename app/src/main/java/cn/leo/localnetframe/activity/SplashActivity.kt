@@ -16,7 +16,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-        tvVersion.text = BuildConfig.VERSION_NAME
+        tvVersion.text = getString(R.string.splash_version, BuildConfig.VERSION_NAME)
         countDown()
     }
 
