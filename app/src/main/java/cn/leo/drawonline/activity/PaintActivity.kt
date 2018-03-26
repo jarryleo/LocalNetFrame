@@ -75,7 +75,7 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         //初始聊天信息和玩家列表
         chatAdapter = MsgListAdapter()
-        userAdapter = ScoreListAdapter(netManager)
+        userAdapter = ScoreListAdapter()
         rvMsgList.layoutManager = LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false)
         rvUserScoreList.layoutManager = LinearLayoutManager(this,

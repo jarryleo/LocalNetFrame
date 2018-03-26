@@ -46,11 +46,12 @@ public class ClientService extends Service {
     @Override
     public void onCreate() {
         mClientManager = new ClientManager(Client.getIp(), Client.getPort());
+        Log.e("即时通讯服务", "onCreate: 服务开启！");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("即时通讯服务", "onDestroy: 服务被结束了！" );
+        Log.e("即时通讯服务", "onDestroy: 服务被结束了！");
     }
 }

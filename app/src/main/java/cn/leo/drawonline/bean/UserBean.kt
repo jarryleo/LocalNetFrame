@@ -1,5 +1,7 @@
 package cn.leo.drawonline.bean
 
+import com.google.gson.Gson
+
 class UserBean {
     //用户所在房间
     var room: RoomBean? = null
@@ -15,4 +17,8 @@ class UserBean {
     var icon: Int = 0
     //用户积分
     var score: Int = 0
+
+    override fun toString(): String {
+        return Gson().toJson(this)
+    }
 }

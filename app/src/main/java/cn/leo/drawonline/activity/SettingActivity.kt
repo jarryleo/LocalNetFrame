@@ -15,6 +15,7 @@ import cn.leo.drawonline.utils.Config
 import cn.leo.drawonline.utils.get
 import cn.leo.drawonline.utils.put
 import cn.leo.localnet.utils.ToastUtilK
+import cn.leo.nio_client.core.Client
 import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_setting.*
@@ -63,8 +64,6 @@ class SettingActivity : AppCompatActivity(), ClientListener {
                 ToastUtilK.show(this, "请输入昵称")
                 return@setOnClickListener
             }
-            put(Config.ICON, iconIndex)
-            put(Config.NICKNAME, nickname)
             netManager.reg(nickname, iconIndex)
         }
 
@@ -74,6 +73,11 @@ class SettingActivity : AppCompatActivity(), ClientListener {
         ToastUtilK.show(this, "设置完成")
         startActivity(Intent(this, RoomListActivity::class.java))
         finish()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        ToastUtilK.show(this, "连接状态" + Client.getConnectStatus())
     }
 
     override fun onConnectSuccess() {
@@ -97,6 +101,9 @@ class SettingActivity : AppCompatActivity(), ClientListener {
                 ToastUtilK.show(this, "昵称已被占用，请换个试试")
             } else if (msgBean.code == MsgCode.REG_FAI.code) {
                 //注册成功
+                val nickname = et_nickname.text.toString()
+                put(Config.ICON, iconIndex)
+                put(Config.NICKNAME, nickname)
                 regSuccess()
             }
         }

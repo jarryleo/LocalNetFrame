@@ -55,14 +55,16 @@ public class ClientJob extends JobService {
     public void scheduleJob(JobInfo t) {
         JobScheduler tm =
                 (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        tm.schedule(t);
+        if (tm != null) {
+            tm.schedule(t);
+        }
     }
 
     public JobInfo getJobInfo() {
         JobInfo.Builder builder = new JobInfo.Builder(kJobId,
                 new ComponentName(getPackageName(), ClientJob.class.getName()));
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-        builder.setPersisted(true);
+        //builder.setPersisted(true);
         builder.setRequiresCharging(false);
         builder.setRequiresDeviceIdle(false);
         builder.setMinimumLatency(1000);

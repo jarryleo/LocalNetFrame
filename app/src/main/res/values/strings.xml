@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">你画我猜-WIFI版</string>
+    <string name="app_name">你画我猜-网络版</string>
     <string name="author_jarry_leo">author：Jarry Leo</string>
     <string name="room_id">房间号：%1$s</string>
     <string name="user_count">(人数：%1$s)</string>
