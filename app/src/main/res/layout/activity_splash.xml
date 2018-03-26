@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackGround"
-    tools:context="cn.leo.localnetframe.activity.SplashActivity">
+    tools:context="cn.leo.drawonline.activity.SplashActivity">
 
     <include layout="@layout/content_splash"/>
 

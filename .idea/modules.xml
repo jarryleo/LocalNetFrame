@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/LocalNetFrame.iml" filepath="$PROJECT_DIR$/LocalNetFrame.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/library_CircleRecyclerView/library_CircleRecyclerView.iml" filepath="$PROJECT_DIR$/library_CircleRecyclerView/library_CircleRecyclerView.iml" />
-      <module fileurl="file://$PROJECT_DIR$/localnet/localnet.iml" filepath="$PROJECT_DIR$/localnet/localnet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nio_client/nio_client.iml" filepath="$PROJECT_DIR$/nio_client/nio_client.iml" />
     </modules>
   </component>
 </project>

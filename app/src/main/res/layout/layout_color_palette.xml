@@ -24,25 +24,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc1"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#FF9999"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc2"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#666666"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc3"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#FFFFFF"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc4"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -54,25 +54,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc5"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#FF0033"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc6"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#FF9900"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc7"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#FFFF00"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc8"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -84,25 +84,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc9"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#0099CC"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc10"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#003399"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc11"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:color="#9933CC"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc12"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -121,19 +121,19 @@
                 android:padding="5dp"
                 android:src="@drawable/undo"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc01"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:size="1dp"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc02"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:size="2dp"/>
 
-            <cn.leo.localnetframe.view.ColorCircle
+            <cn.leo.drawonline.view.ColorCircle
                 android:id="@+id/cc03"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <cn.leo.localnetframe.view.DrawBoard
+        <cn.leo.drawonline.view.DrawBoard
             android:id="@+id/drawBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

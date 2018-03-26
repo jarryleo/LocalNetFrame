@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="cn.leo.localnetframe">
+          package="cn.leo.drawonline">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <application
-        android:name=".MyApplication"
+        android:name="cn.leo.drawonline.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activity.SplashActivity"
+            android:name="cn.leo.drawonline.activity.SplashActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -32,7 +32,7 @@
         </activity>
         <!-- 游戏窗口 -->
         <activity
-            android:name=".activity.PaintActivity"
+            android:name="cn.leo.drawonline.activity.PaintActivity"
             android:configChanges="screenSize|orientation|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -40,17 +40,17 @@
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <!-- 房间列表 -->
         <activity
-            android:name=".activity.RoomListActivity"
+            android:name="cn.leo.drawonline.activity.RoomListActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
         <!-- 房间 -->
         <activity
-            android:name=".activity.RoomActivity"
+            android:name="cn.leo.drawonline.activity.RoomActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
         <!--设置-->
         <activity
-            android:name=".activity.SettingActivity"
+            android:name="cn.leo.drawonline.activity.SettingActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity

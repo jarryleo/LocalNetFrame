@@ -1,1 +1,1 @@
-include ':app', ':localnet', ':library_CircleRecyclerView'
+include ':app', ':library_CircleRecyclerView', ':nio_client'

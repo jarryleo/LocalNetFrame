@@ -10,7 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/library_CircleRecyclerView" />
-            <option value="$PROJECT_DIR$/localnet" />
+            <option value="$PROJECT_DIR$/nio_client" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
