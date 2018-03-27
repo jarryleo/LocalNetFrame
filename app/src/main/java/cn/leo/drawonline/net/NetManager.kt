@@ -3,6 +3,7 @@ package cn.leo.drawonline.net
 import cn.leo.drawonline.bean.MsgBean
 import cn.leo.drawonline.bean.RoomBean
 import cn.leo.drawonline.bean.UserBean
+import cn.leo.drawonline.constant.MsgCode
 import cn.leo.drawonline.constant.MsgType
 import cn.leo.nio_client.core.Client
 
@@ -19,7 +20,21 @@ class NetManager {
         userBean.icon = icon
         val msgBean = MsgBean()
         msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.REG
+        msgBean.type = MsgType.REG.getType()
+        msgBean.msg = userBean.toString()
+        Client.sendMsg(msgBean.toString().toByteArray())
+    }
+
+    /**
+     * 修改昵称和头像
+     */
+    fun update(name: String, icon: Int) {
+        val userBean = UserBean()
+        userBean.userName = name
+        userBean.icon = icon
+        val msgBean = MsgBean()
+        msgBean.time = System.currentTimeMillis()
+        msgBean.type = MsgType.EDIT.getType()
         msgBean.msg = userBean.toString()
         Client.sendMsg(msgBean.toString().toByteArray())
     }
@@ -28,12 +43,10 @@ class NetManager {
      * 登录
      */
     fun login(name: String) {
-        val userBean = UserBean()
-        userBean.userName = name
         val msgBean = MsgBean()
         msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.LOGIN
-        msgBean.msg = userBean.toString()
+        msgBean.type = MsgType.LOGIN.getType()
+        msgBean.msg = name
         Client.sendMsg(msgBean.toString().toByteArray())
     }
 
@@ -73,5 +86,16 @@ class NetManager {
      */
     fun stopGame() {
 
+    }
+
+    /**
+     * 发送心跳
+     */
+    fun heart() {
+        val msgBean = MsgBean()
+        msgBean.time = System.currentTimeMillis()
+        msgBean.type = MsgType.SYS.getType()
+        msgBean.code = MsgCode.HEART.code
+        Client.sendMsg(msgBean.toString().toByteArray())
     }
 }

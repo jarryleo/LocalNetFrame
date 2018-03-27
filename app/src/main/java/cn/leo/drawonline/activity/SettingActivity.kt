@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import cn.leo.drawonline.MyApplication
 import cn.leo.drawonline.R
 import cn.leo.drawonline.adapter.GalleryAdapter
 import cn.leo.drawonline.bean.Icons
@@ -64,13 +65,24 @@ class SettingActivity : AppCompatActivity(), ClientListener {
                 ToastUtilK.show(this, "请输入昵称")
                 return@setOnClickListener
             }
-            netManager.reg(nickname, iconIndex)
+            if (MyApplication.getUser() == null) {
+                ToastUtilK.show(this, "没有登录，无法设置")
+                return@setOnClickListener
+            }
+            val localName = get(Config.NICKNAME, "")
+            if (localName.isEmpty()) {
+                //注册
+                netManager.reg(nickname, iconIndex)
+            } else {
+                //修改
+                netManager.update(nickname, iconIndex)
+            }
         }
 
     }
 
     private fun regSuccess() {
-        ToastUtilK.show(this, "设置完成")
+        ToastUtilK.show(this, "设置成功")
         startActivity(Intent(this, RoomListActivity::class.java))
         finish()
     }
@@ -95,11 +107,13 @@ class SettingActivity : AppCompatActivity(), ClientListener {
     override fun onDataArrived(data: ByteArray?) {
         val json = String(data!!)
         val msgBean = Gson().fromJson<MsgBean>(json, MsgBean::class.java)
-        if (msgBean.type == MsgType.REG) {
-            if (msgBean.code == MsgCode.REG_FAI.code) {
+        if (msgBean.type == MsgType.SYS.getType()) {
+            if (msgBean.code == MsgCode.REG_FAI.code ||
+                    msgBean.code == MsgCode.EDIT_FAI.code) {
                 //注册失败
                 ToastUtilK.show(this, "昵称已被占用，请换个试试")
-            } else if (msgBean.code == MsgCode.REG_FAI.code) {
+            } else if (msgBean.code == MsgCode.REG_SUC.code ||
+                    msgBean.code == MsgCode.EDIT_SUC.code) {
                 //注册成功
                 val nickname = et_nickname.text.toString()
                 put(Config.ICON, iconIndex)

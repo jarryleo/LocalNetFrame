@@ -7,6 +7,8 @@ enum class MsgCode constructor(//丢拖鞋
     REG_FAI(1001),//注册失败
     LOG_SUC(2000),//登录成功
     LOG_FAI(2001),//登录失败
+    EDIT_SUC(3000),//修改成功
+    EDIT_FAI(3001),//修改失败
     ROOM_LIST(5000),//房间列表
     ROOM_INFO(5001),//房间信息
     ROOM_JOIN(5002),//加入房间

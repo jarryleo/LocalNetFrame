@@ -7,10 +7,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import cn.leo.drawonline.MyApplication
 import cn.leo.drawonline.R
 import cn.leo.drawonline.adapter.RoomListAdapter
 import cn.leo.drawonline.bean.Icons
 import cn.leo.drawonline.bean.MsgBean
+import cn.leo.drawonline.bean.UserBean
 import cn.leo.drawonline.constant.MsgCode
 import cn.leo.drawonline.constant.MsgType
 import cn.leo.drawonline.net.NetManager
@@ -64,6 +66,8 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
         tvScore.text = getString(R.string.room_list_user_score, score)
         val icon = get(Config.ICON, 0)
         ivHeadIcon.setImageResource(Icons.getIconList()[icon])
+        //登录
+        netManager.login(name)
     }
 
     private fun initView() {
@@ -140,6 +144,8 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
 
     override fun onConnectSuccess() {
         ToastUtilK.show(this, "连接服务器成功")
+        //登录
+        netManager.login(tvName.text.toString())
     }
 
     override fun onConnectFailed() {
@@ -153,19 +159,23 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
     override fun onDataArrived(data: ByteArray?) {
         val msg = String(data!!)
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
-        if (msgBean.type == MsgType.LOGIN) {
+        if (msgBean.type == MsgType.LOGIN.getType()) {
             if (msgBean.code == MsgCode.LOG_FAI.code) {
                 //登录失败
                 ToastUtilK.show(this, "登录失败")
             } else if (msgBean.code == MsgCode.LOG_SUC.code) {
                 //登录成功
                 logSuccess()
+                val json = msgBean.msg
+                val userBean = Gson().fromJson(json, UserBean::class.java)
+                MyApplication.setUser(userBean)
             }
         }
     }
 
     private fun logSuccess() {
         //请求房间列表
+        ToastUtilK.show(this, "登录成功")
 
     }
 
