@@ -1,5 +1,6 @@
 package cn.leo.drawonline.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -92,6 +93,15 @@ class RoomActivity : AppCompatActivity(), ClientListener {
                 val json = msgBean.msg
                 val roomBean = Gson().fromJson<RoomBean>(json, RoomBean::class.java)
                 refreshUsers(roomBean)
+            } else if (msgBean.code == MsgCode.GAME_START_SUC.code) {
+                //游戏开始成功
+                val intent = Intent(this, PaintActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else if (msgBean.code == MsgCode.GAME_START_FAIL.code) {
+                //游戏开始失败
+                val msg = msgBean.msg
+                ToastUtilK.show(this, msg!!)
             }
         }
     }

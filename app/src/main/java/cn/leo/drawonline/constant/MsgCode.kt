@@ -19,6 +19,8 @@ enum class MsgCode constructor(//丢拖鞋
     ROOM_JOIN_SUC(5200),//加入房间成功
     ROOM_JOIN_FAI(5201),//加入房间失败
     GAME_START(6000),//游戏开始
+    GAME_START_SUC(6001),//游戏开始成功
+    GAME_START_FAIL(6002),//游戏开始失败
     GAME_EXIT(6001),//退出游戏
     GAME_ANSWER(6003),//显示答案
     GAME_TIPS(6004),//显示提示

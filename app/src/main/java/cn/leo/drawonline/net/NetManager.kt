@@ -111,14 +111,15 @@ class NetManager {
      * 开始游戏
      */
     fun startGame() {
-
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.GAME_START.code)
+        sendMsgBean(msgBean)
     }
 
     /**
      * 退出游戏
      */
     fun stopGame() {
-
+        exitRoom()
     }
 
     /**

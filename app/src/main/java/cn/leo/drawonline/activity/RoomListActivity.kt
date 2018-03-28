@@ -161,7 +161,7 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
 
     private fun logSuccess() {
         //请求房间列表
-        ToastUtilK.show(this, "登录成功")
+        //ToastUtilK.show(this, "登录成功")
         netManager.findRoom()
     }
 
