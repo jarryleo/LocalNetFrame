@@ -5,7 +5,7 @@ import java.util.*
 
 class RoomBean {
     //房间内的玩家列表
-    private val mUsers = Collections.synchronizedList(ArrayList<UserBean>())
+    var users = Collections.synchronizedList(ArrayList<UserBean>())
     //房间id
     var roomId: Int = 0
     //房间正在画画的词汇
@@ -22,13 +22,10 @@ class RoomBean {
     var paintCountDown: Int = 0
     //获取房间内所有人列表
 
-    val users: List<UserBean>
-        get() = mUsers
-
     //获取房间总人数
 
     val userCount: Int
-        get() = mUsers.size
+        get() = users.size
 
     override fun toString(): String {
         return Gson().toJson(this)

@@ -6,13 +6,14 @@ import cn.leo.drawonline.R
 import cn.leo.drawonline.base.BaseRVAdapter
 import cn.leo.drawonline.base.BaseRVHolder
 import cn.leo.drawonline.bean.Room
+import cn.leo.drawonline.bean.RoomBean
 import cn.leo.drawonline.holder.RoomListHolder
 
 /**
  * Created by Leo on 2018/2/28.
  */
-class RoomListAdapter : BaseRVAdapter<Room>() {
-    override fun getViewHolder(parent: ViewGroup?, viewType: Int): BaseRVHolder<Room> {
+class RoomListAdapter : BaseRVAdapter<RoomBean>() {
+    override fun getViewHolder(parent: ViewGroup?, viewType: Int): BaseRVHolder<RoomBean> {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.item_room, parent, false)
         return RoomListHolder(view)
     }

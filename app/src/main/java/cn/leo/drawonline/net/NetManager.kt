@@ -1,7 +1,7 @@
 package cn.leo.drawonline.net
 
+import cn.leo.drawonline.MyApplication
 import cn.leo.drawonline.bean.MsgBean
-import cn.leo.drawonline.bean.RoomBean
 import cn.leo.drawonline.bean.UserBean
 import cn.leo.drawonline.constant.MsgCode
 import cn.leo.drawonline.constant.MsgType
@@ -12,17 +12,41 @@ import cn.leo.nio_client.core.Client
  */
 class NetManager {
     /**
+     * 获取消息对象
+     */
+    private fun getMsgBean(type: Int, code: Int = 0): MsgBean {
+        val msgBean = MsgBean()
+        msgBean.time = System.currentTimeMillis()
+        msgBean.type = type
+        msgBean.code = code
+        return msgBean
+    }
+
+    /**
+     * 发送json数据
+     */
+    private fun sendJsonMsg(json: String) {
+        Client.sendMsg(json.toByteArray())
+    }
+
+    /**
+     * 发送msgBean数据
+     */
+    private fun sendMsgBean(msgBean: MsgBean) {
+        sendJsonMsg(msgBean.toString())
+    }
+
+
+    /**
      * 注册
      */
     fun reg(name: String, icon: Int) {
         val userBean = UserBean()
         userBean.userName = name
         userBean.icon = icon
-        val msgBean = MsgBean()
-        msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.REG.getType()
+        val msgBean = getMsgBean(MsgType.REG.getType())
         msgBean.msg = userBean.toString()
-        Client.sendMsg(msgBean.toString().toByteArray())
+        sendMsgBean(msgBean)
     }
 
     /**
@@ -32,22 +56,19 @@ class NetManager {
         val userBean = UserBean()
         userBean.userName = name
         userBean.icon = icon
-        val msgBean = MsgBean()
-        msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.EDIT.getType()
+        userBean.userId = MyApplication.getUser()?.userId!!
+        val msgBean = getMsgBean(MsgType.EDIT.getType())
         msgBean.msg = userBean.toString()
-        Client.sendMsg(msgBean.toString().toByteArray())
+        sendMsgBean(msgBean)
     }
 
     /**
      * 登录
      */
     fun login(name: String) {
-        val msgBean = MsgBean()
-        msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.LOGIN.getType()
+        val msgBean = getMsgBean(MsgType.LOGIN.getType())
         msgBean.msg = name
-        Client.sendMsg(msgBean.toString().toByteArray())
+        sendMsgBean(msgBean)
     }
 
     /**
@@ -55,15 +76,18 @@ class NetManager {
      */
 
     fun createRoom() {
-
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.ROOM_CREATE.code)
+        sendMsgBean(msgBean)
     }
 
     /**
      * 加入房间
      */
 
-    fun joinRoom(room: RoomBean) {
-
+    fun joinRoom(room: Int) {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.ROOM_JOIN.code)
+        msgBean.msg = room.toString()
+        sendMsgBean(msgBean)
     }
 
     /**
@@ -71,13 +95,22 @@ class NetManager {
      */
 
     fun findRoom() {
-
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.ROOM_LIST.code)
+        sendMsgBean(msgBean)
     }
 
     /**
      * 退出房间
      */
     fun exitRoom() {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.ROOM_EXIT.code)
+        sendMsgBean(msgBean)
+    }
+
+    /**
+     * 开始游戏
+     */
+    fun startGame() {
 
     }
 
@@ -92,10 +125,8 @@ class NetManager {
      * 发送心跳
      */
     fun heart() {
-        val msgBean = MsgBean()
-        msgBean.time = System.currentTimeMillis()
-        msgBean.type = MsgType.SYS.getType()
-        msgBean.code = MsgCode.HEART.code
-        Client.sendMsg(msgBean.toString().toByteArray())
+        val msgBean = getMsgBean(MsgType.SYS.getType(), MsgCode.HEART.code)
+        sendMsgBean(msgBean)
     }
+
 }

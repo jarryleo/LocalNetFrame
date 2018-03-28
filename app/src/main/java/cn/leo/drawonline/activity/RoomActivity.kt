@@ -5,11 +5,18 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import cn.leo.drawonline.R
 import cn.leo.drawonline.adapter.UserListAdapter
-import cn.leo.drawonline.bean.Room
+import cn.leo.drawonline.bean.MsgBean
+import cn.leo.drawonline.bean.RoomBean
+import cn.leo.drawonline.constant.MsgCode
+import cn.leo.drawonline.constant.MsgType
 import cn.leo.drawonline.net.NetManager
+import cn.leo.localnet.utils.ToastUtilK
+import cn.leo.nio_client.core.ClientListener
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room.*
 
-class RoomActivity : AppCompatActivity() {
+class RoomActivity : AppCompatActivity(), ClientListener {
+    private var roomId: Int = -1
     private val netManager = NetManager()
     private var adapter: UserListAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,105 +27,74 @@ class RoomActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        val room = intent.getParcelableExtra<Room>("room")
-//        if (room != null) {
-//            netManager.joinRoom(room)
-//        }
+        roomId = intent.getIntExtra("room", -1)
+        if (roomId != -1) {
+            netManager.joinRoom(roomId)
+        }
     }
 
-    private fun initTitle() {
-//        if (netManager.isGaming()) {
-//            title = getString(R.string.room_id, netManager.getRoomId()) + "(游戏中)"
-//            btnStartGame.text = "加入游戏"
-//        } else {
-//            title = getString(R.string.room_id, netManager.getRoomId())
-//        }
+    private fun initTitle(roomBean: RoomBean) {
+        if (roomBean.roomState > 0) {
+            title = getString(R.string.room_id, roomBean.roomId.toString()) + "(游戏中)"
+            btnStartGame.text = "加入游戏"
+        } else {
+            title = getString(R.string.room_id, roomBean.roomId.toString())
+        }
     }
 
     override fun onRestart() {
         super.onRestart()
-        //刷新房间信息 TODO
-        //netManager = MyApplication.getNetManager(dataReceiver)!!
+        //刷新房间信息
+        netManager.joinRoom(roomId)
     }
 
     private fun initView() {
         adapter = UserListAdapter()
-        refreshUsers()
         rvUserList.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        //GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
         rvUserList.adapter = adapter
         btnStartGame.setOnClickListener {
             startGame()
         }
     }
 
-    private fun refreshUsers() {
-        adapter?.clearData()
-//        netManager.getRoomUsers().forEach {
-//            adapter?.addData(it)
-//        }
-//        if (netManager.meIsRoomOwner() || netManager.isGaming()) {
-//            btnStartGame.visibility = View.VISIBLE
-//        } else {
-//            btnStartGame.visibility = View.GONE
-//        }
-        initTitle()
+    private fun refreshUsers(roomBean: RoomBean) {
+        adapter?.setDatas(roomBean.users)
+        initTitle(roomBean)
     }
 
     private fun startGame() {
-//        if (netManager.isGaming()) {
-//            startActivity(Intent(this, PaintActivity::class.java))
-//            finish()
-//        } else if (netManager.getRoomUsers().size > 1) {
-//            if (netManager.meIsRoomOwner()) {
-//                //发送开始游戏指令
-//                netManager.startGame()
-//                //跳转到游戏界面
-//                startActivity(Intent(this, PaintActivity::class.java))
-//                finish()
-//            } else {
-//                ToastUtilK.show(this, "排在第一位置的人才能开始游戏")
-//            }
-//        } else {
-//            ToastUtilK.show(this, "最少两人才能开始游戏")
-//            //发送开始游戏指令 TODO 以下代码正式版移除
-//            netManager.startGame()
-//            startActivity(Intent(this, PaintActivity::class.java))
-//            finish()
-//        }
+        netManager.startGame()
     }
 
-    /**
-     * 接受到数据
-     */
-//    inner class DataReceiver : NetInterFace.OnDataArrivedListener() {
-//        override fun onJoinRoom(pre: Char, msg: String, host: String) {
-//            refreshUsers()
-//        }
-//
-//        override fun onExitRoom(pre: Char, msg: String, host: String) {
-//            refreshUsers()
-//        }
-//
-//        override fun onGetApHost(pre: Char, msg: String, host: String) {
-//            refreshUsers()
-//        }
-//
-//        override fun onRoomResult(pre: Char, msg: String, host: String) {
-//            val room = Gson().fromJson<Room>(msg, Room::class.java)
-//            if (room.id == netManager.getRoomId()) {
-//                netManager.uploadRoomInfo(room)
-//                refreshUsers()
-//            }
-//        }
-//
-//        override fun onStartGame(pre: Char, msg: String, host: String) {
-//            startActivity(Intent(this@RoomActivity, PaintActivity::class.java))
-//            finish()
-//        }
-//    }
+    override fun onConnectSuccess() {
 
+    }
+
+    override fun onConnectFailed() {
+
+    }
+
+    override fun onIntercept() {
+
+    }
+
+    override fun onDataArrived(data: ByteArray?) {
+        val msg = String(data!!)
+        val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
+        if (msgBean.type == MsgType.GAME.getType()) {
+            if (msgBean.code == MsgCode.ROOM_JOIN_FAI.code) {
+                //加入失败
+                ToastUtilK.show(this, "加入房间失败")
+                finish()
+            } else if (msgBean.code == MsgCode.ROOM_JOIN_SUC.code) {
+                //加入成功
+                val json = msgBean.msg
+                val roomBean = Gson().fromJson<RoomBean>(json, RoomBean::class.java)
+                refreshUsers(roomBean)
+            }
+        }
+    }
 
     override fun onBackPressed() {
         super.onBackPressed()
