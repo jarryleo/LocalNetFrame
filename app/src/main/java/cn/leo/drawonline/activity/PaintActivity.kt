@@ -15,52 +15,43 @@ import android.view.animation.DecelerateInterpolator
 import cn.leo.drawonline.R
 import cn.leo.drawonline.adapter.MsgListAdapter
 import cn.leo.drawonline.adapter.ScoreListAdapter
-import cn.leo.drawonline.bean.Msg
-import cn.leo.drawonline.bean.User
+import cn.leo.drawonline.bean.MsgBean
+import cn.leo.drawonline.bean.RoomBean
+import cn.leo.drawonline.constant.MsgCode
+import cn.leo.drawonline.constant.MsgType
 import cn.leo.drawonline.net.NetManager
+import cn.leo.drawonline.utils.Config
 import cn.leo.drawonline.utils.SoundsUtil
-import cn.leo.drawonline.utils.WordChooser
+import cn.leo.drawonline.utils.get
+import cn.leo.drawonline.utils.put
 import cn.leo.drawonline.view.*
+import cn.leo.localnet.utils.StringZipUtil
 import cn.leo.localnet.utils.ToastUtilK
+import cn.leo.nio_client.core.ClientListener
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
 import kotlinx.android.synthetic.main.layout_color_palette.*
 
-class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle.OnColorClickListener, AnswerDialog.OnOpinionClickListener {
+class PaintActivity : AppCompatActivity(),
+        DrawBoard.OnDrawListener,
+        ColorCircle.OnColorClickListener,
+        AnswerDialog.OnOpinionClickListener,
+        ClientListener {
 
     private val netManager = NetManager()
     private var widthPixels: Int = 0
     private var density: Float = 0f
     private var chatAdapter: MsgListAdapter? = null
     private var userAdapter: ScoreListAdapter? = null
-    private var wordChooser: WordChooser? = null
     private var countDownTimer: CountDownTimer? = null
     private var word: String = "测试"
+    private var tips: String = "提示"
     private var isMePaint: Boolean = false
-    private var rightUsers = ArrayList<User>() //答对的人
     private val handler = Handler()
-    private lateinit var heartTask: Runnable
     private var popupTips: PopTips? = null
     private var answerDialog: AnswerDialog = AnswerDialog()
     private var soundsUtil: SoundsUtil? = null
-
-/*    init {
-        //定时任务，检测画画的人是否掉线
-        heartTask = Runnable {
-            refreshUsers()
-            if (!isMePaint &&
-                    netManager.getPainter().isOffline() &&
-                    netManager.meIsNextPainter()) {
-                netManager.getRoom().countDownTime--
-                val time = netManager.getRoom().countDownTime.toString()
-                showCountDown(time)
-                netManager.sendMsgOther("D$time")
-                countToDo(time.toLong())
-            }
-            handler.removeCallbacks(heartTask)
-            handler.postDelayed(heartTask, 1000)
-        }
-        handler.postDelayed(heartTask, 1000)
-    }*/
+    private var meName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,13 +83,13 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         density = resources.displayMetrics.density
         hideColorLens()
         btnColorLens.setOnClickListener {
-            //            if (netManager.meIsPainter()) {
-//                if (llColorLens.x + llColorLens.width <= widthPixels) {
-//                    hideColorLens()
-//                } else {
-//                    showColorLens()
-//                }
-//            }
+            if (isMePaint) {
+                if (llColorLens.x + llColorLens.width <= widthPixels) {
+                    hideColorLens()
+                } else {
+                    showColorLens()
+                }
+            }
         }
         //调色板按钮点击事件
         click(cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8, cc9, cc10, cc11, cc12)
@@ -115,57 +106,58 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
 
     //送鲜花
     override fun onFLower() {
-//        netManager.sendOpinion("F")
+        netManager.sendFlower()
         showGift(1)
     }
 
     //丢拖鞋
     override fun onSlipper() {
-//        netManager.sendOpinion("S")
+        netManager.sendSlipper()
         showGift(2)
     }
 
     private fun initData() {
-        wordChooser = WordChooser(this)
+        meName = get("nickname", "")
         soundsUtil = SoundsUtil(this)
         refreshUsers()
-        checkPlayer()
     }
 
     //倒计时
-    private fun countDown() {
-        /* countDownTimer = object : CountDownTimer(
-                 netManager.getRoom().countDownTime * 1000L, 1000) {
-             override fun onFinish() {
-                 showCountDown("0")
-                 nextPlayer()
-             }
+    private fun countDown(countTime: Int) {
+        if (countDownTimer != null) {
+            countDownTimer?.cancel()
+        }
+        countDownTimer = object : CountDownTimer(
+                countTime * 1000L, 1000) {
+            override fun onFinish() {
+                showCountDown("0")
+                nextPlayer()
+            }
 
-             override fun onTick(millisUntilFinished: Long) {
-                 val sec = millisUntilFinished / 1000
-                 countToDo(sec)
-             }
-         }
-         countDownTimer?.start()*/
+            override fun onTick(millisUntilFinished: Long) {
+                val sec = millisUntilFinished / 1000
+                countToDo(sec)
+            }
+        }
+        countDownTimer?.start()
     }
 
     private fun countToDo(sec: Long) {
-        var tips = "T${word.length}个字"
+        var tips = "${word.length}个字"
         when (sec) {
             in 56L..Long.MAX_VALUE -> {
                 //发送第一个提示，几个字
-                tips = "T${word.length}个字"
+                tips = "${word.length}个字"
             }
             in 6L..55L -> {
                 //发送第二个提示
-                tips = "T${word.length}个字,${wordChooser?.getTips()}"
+                tips = "${word.length}个字,$tips"
             }
             5L -> {
                 //发送答案
-                tips = "A$word"
+                tips = word
             }
         }
-        // netManager.sendMsgOther(tips)
         if (isMePaint) {
             //展示词汇
             tvTitle.text = word
@@ -178,8 +170,6 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         //预留5秒显示答案
         if (time >= 0L) {
             showCountDown(time.toString())
-            //同步倒计时
-            // netManager.sendMsgOther("D$time")
             if (time == 0L) {
                 if (isMePaint) {
                     //公布结果
@@ -193,18 +183,13 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         } else {
             showCountDown(sec.toString())
         }
-        showRound()
     }
 
-    /**
-     *游戏绘画全力转移到下一个玩家
-     */
+    //下一个开始复位数据
     private fun nextPlayer() {
         tvTitle.text = resources.getText(R.string.app_name)
         isMePaint = false
-        rightUsers.clear()
         countDownTimer?.cancel()
-        //netManager.nextPainter()
         hideAnswer()
         checkPlayer()
         refreshUsers()
@@ -220,34 +205,15 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
-    //检查现在是谁在作画
+    //检查是不是自己作画
     private fun checkPlayer() {
-        /* if (!isMePaint && netManager.meIsPainter()) {
-             //轮到我画画
-             isMePaint = true
-             //准备我画画的工作
-             //获取要画的词汇
-             word = wordChooser?.chooseWord()?.getWord()!!
-             //展示词汇
-             tvTitle.text = word
-             //清空帮忙记录的答对人数
-             rightUsers.clear()
-             //复位工作
-             hideAnswer()
-             drawBoard.clear()
-             hideColorLens()
-             //房间倒计时复位
-             netManager.getRoom().countDownTime = Config.roundTime
-             //开始倒计时
-             countDown()
-             //通知其他人清空上次画画的内容,并同步倒计时
-             //暗中传递答案，再画画的人掉线后，接管的人能控制倒计时和答案
-             netManager.sendMsgOther("S$word")
-             //提示我开始画画
-             ToastUtilK.show(this, "轮到我开始画画了")
-             //播放提示音
-             soundsUtil?.playSound(R.raw.gogogo, false)
-         }*/
+        if (isMePaint) {
+            //提示我开始画画
+            ToastUtilK.show(this, "轮到我开始画画了")
+            //播放提示音
+            soundsUtil?.playSound(R.raw.gogogo, false)
+        }
+        //画板锁定和解锁
         drawBoard.lock = !isMePaint
     }
 
@@ -289,69 +255,29 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         if (str.isEmpty()) {
             ToastUtilK.show(this, "不能发送空的消息")
         } else {
-            /*//获取输入的聊天信息
-            val msgBean = Msg(netManager.getMeName(), str)
+            //发送聊天信息
+            netManager.sendChat(str)
             //清空输入框
             etMsg.setText("")
-            //如果是我在画画，把信息发给其他人，自己添加到聊天栏
-            if (netManager.meIsPainter()) {
-                //如果画画的人想泄题，把含有题目文字打码
-                word.forEach { msgBean.msg = msgBean.msg.replace(it.toString(), "**") }
-                //转发聊天信息
-                netManager.sendMsgOther("C$msgBean")
-                showMsg(msgBean)
-            } else {
-                if ((netManager.getPainter().isOffline()
-                                && netManager.meIsNextPainter())) {
-                    //获取答题人
-                    val user = netManager.getMe()
-                    checkAnswer(msgBean, user)
-                } else {
-                    //如果是别人在画画，把消息发给画画的人
-                    netManager.sendMsgPainter("C$msgBean")
-                }
-            }*/
         }
     }
 
     //检查聊天的答案
-    private fun checkAnswer(msgBean: Msg, user: User) {
-        /*  var allRight = false
-          if (msgBean.msg == word) {
-              msgBean.msg = "猜对了！"
-              msgBean.isAnswer = true
-              //统计答对人数
-              if (!rightUsers.contains(user)) {
-                  //给第一次答对的人加分
-                  user.score += 1
-                  rightUsers.add(user)
-                  //我答对了声音
-                  if (user == netManager.getMe()) {
-                      soundsUtil?.playSound(R.raw.right, false)
-                      val score = get(Config.SCORE, 0)
-                      put(Config.SCORE, score + 1)
-                  }
-                  if (rightUsers.size >= netManager.getRoomUsers().size - 1) {
-                      //每个人都答对了下一个玩家开始游戏
-                      allRight = true
-                  }
-              }
-              //发送分数
-              netManager.sendMsgOther("U$user")
-              //refreshUsers()
-          }
-          //转发聊天信息
-          netManager.sendMsgOther("C$msgBean")
-          showMsg(msgBean)
-          //下一个玩家开始游戏
-          if (allRight) {
-              allPlayerAnswerRight()
-          }*/
+    private fun checkAnswer(msgBean: MsgBean) {
+        //我答对了声音
+        if (msgBean.code == 100 && msgBean.senderName == meName) {
+            soundsUtil?.playSound(R.raw.right, false)
+            val score = get(Config.SCORE, 0)
+            put(Config.SCORE, score + 1)
+        }
+        allPlayerAnswerRight(msgBean)
     }
 
     //全部玩家答对
-    private fun allPlayerAnswerRight() {
-        /*netManager.sendMsgOther("A$word")
+    private fun allPlayerAnswerRight(msgBean: MsgBean) {
+        if (msgBean.id != 200) {
+            return
+        }
         if (isMePaint) {
             //公布结果
             drawBoard.lock = true
@@ -361,35 +287,28 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         } else {
             showAnswer(word)
         }
-        handler.postDelayed({ nextPlayer() }, 5000)*/
+        handler.postDelayed({ nextPlayer() }, 5000)
     }
 
     //刷新用户分数
     private fun refreshUsers() {
-        /*userAdapter?.clearData()
-        netManager.getRoomUsers()?.forEach {
-            userAdapter?.addData(it)
-        }*/
+        netManager.getRoomInfo()
     }
 
-    /**
-     * 显示消息
-     */
-    private fun showMsg(msg: Msg) {
+    //显示消息
+    private fun showMsg(msg: MsgBean) {
         chatAdapter?.addData(msg)
         rvMsgList.smoothScrollToPosition(chatAdapter?.itemCount!!)
-        val findPositionForName = userAdapter?.findPositionForName(msg.name)
+        val findPositionForName = userAdapter?.findPositionForName(msg.senderName!!)
         val viewHolder = rvUserScoreList.findViewHolderForAdapterPosition(findPositionForName!!)
         if (viewHolder != null) {
             popupTips?.showAsDropDown(viewHolder.itemView, msg)
         }
         handler.postDelayed({ popupTips?.dismiss() }, 2000)
-        refreshUsers()
+        checkAnswer(msg)
     }
 
-    /**
-     * 显示答案
-     */
+    //显示答案
     private fun showAnswer(answer: String) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -397,135 +316,89 @@ class PaintActivity : AppCompatActivity(), DrawBoard.OnDrawListener, ColorCircle
         handler.postDelayed({ hideAnswer() }, 5000)
     }
 
-    /**
-     * 隐藏答案
-     */
+    //隐藏答案
     private fun hideAnswer() {
         answerDialog.dismiss()
     }
 
-    /**
-     * 显示提示信息
-     */
+    //显示提示信息
     private fun showTips(tips: String) {
         tvTitle.text = tips
     }
 
-    /**
-     * 显示倒计时
-     */
+    //显示倒计时
     private fun showCountDown(time: String) {
         tvTimer.text = time
     }
 
-    /**
-     * 显示第几轮
-     */
-    private fun showRound() {
-        //tvRound.text = "第${netManager.getRoomRound()}轮"
+    //显示第几轮
+    private fun showRound(round: Int) {
+        tvRound.text = "第${round}轮"
     }
 
     //发送画板数据
     override fun onDraw(code: String) {
-        //netManager.sendMsgOther("P$code")
+        val compress = StringZipUtil.compress(code)
+        netManager.sendPaint(compress)
     }
 
-    /* */
-    /**
-     * 接受到数据
-     *//*
-    inner class DataReceiver : NetInterFace.OnDataArrivedListener() {
-        override fun onChat(pre: Char, msg: String, host: String) {
-            //聊天数据
-            val msgBean = Gson().fromJson<Msg>(msg, Msg::class.java)
-            //获取答题人
-            val user = netManager.getSendMsgUser(host)!!
-            //处理聊天数据
-            if (netManager.meIsPainter()) {
-                //如果我是画画的人，检测答案
-                checkAnswer(msgBean, user)
-            } else {
-                //展示聊天内容
+    override fun onConnectSuccess() {
+
+    }
+
+    override fun onConnectFailed() {
+
+    }
+
+    override fun onIntercept() {
+
+    }
+
+    override fun onDataArrived(data: ByteArray?) {
+        val msg = String(data!!)
+        val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
+        if (msgBean.type == MsgType.PAINT.getType()) {
+            val paint = msgBean.msg
+            val uncompress = StringZipUtil.uncompress(paint)
+            drawBoard.setBitmapCode(uncompress!!)
+        } else if (msgBean.type == MsgType.GAME.getType()) {
+            if (msgBean.code == MsgCode.ROOM_INFO.code ||
+                    msgBean.code == MsgCode.ROOM_JOIN_SUC.code) {
+                //房间信息同步
+                val json = msgBean.msg
+                val roomBean = Gson().fromJson<RoomBean>(json, RoomBean::class.java)
+                refreshRoom(roomBean!!)
+            } else if (msgBean.code == MsgCode.GAME_CHAT.code) {
                 showMsg(msgBean)
+            } else if (msgBean.code == MsgCode.GAME_GIFT_FLOWER.code) {
+                //收到鲜花
+                showGift(1)
+            } else if (msgBean.code == MsgCode.GAME_GIFT_SLIPPER.code) {
+                //收到拖鞋
+                showGift(2)
             }
         }
+    }
 
-        override fun onPaint(pre: Char, msg: String, host: String) {
-            //画画数据
-            if (!netManager.meIsPainter()) {
-                drawBoard.setBitmapCode(msg)
-            }
-        }
-
-        override fun onExitRoom(pre: Char, msg: String, host: String) {
-            refreshUsers()
+    private fun refreshRoom(roomBean: RoomBean) {
+        val users = roomBean.users
+        //更新用户信息
+        userAdapter?.setDatas(users!!)
+        //判断自己身份
+        val roomPainter = roomBean.roomPainter
+        val userName = roomPainter?.userName
+        val switch = userName == meName
+        if (isMePaint != switch) {
+            isMePaint = switch
             checkPlayer()
         }
-
-        override fun onJoinRoom(pre: Char, msg: String, host: String) {
-            refreshUsers()
-            handler.postDelayed({
-                //刚加入房间的人发送一副画板图给他
-                netManager.sendData("P${drawBoard.getDrawCode()}", host)
-            }, 3000)
-
-        }
-
-        override fun onUpdateScore(pre: Char, msg: String, host: String) {
-            refreshUsers()
-            val user = Gson().fromJson<User>(msg, User::class.java)
-            rightUsers.add(user)
-            //我答对了声音
-            if (user == netManager.getMe()) {
-                soundsUtil?.playSound(R.raw.right, false)
-                val score = get(Config.SCORE, 0)
-                put(Config.SCORE, score + 1)
-            }
-        }
-
-        override fun onNextPainter(pre: Char, msg: String, host: String) {
-            hideAnswer()
-            refreshUsers()
-            drawBoard.clear()
-            checkPlayer()
-        }
-
-        override fun onShowAnswer(pre: Char, msg: String, host: String) {
-            //显示答案
-            showAnswer(msg)
-        }
-
-        override fun onShowTips(pre: Char, msg: String, host: String) {
-            //提示内容
-            showTips(msg)
-            showRound()
-        }
-
-        override fun onCountDown(pre: Char, msg: String, host: String) {
-            //倒计时
-            showCountDown(msg)
-        }
-
-        override fun onStartGame(pre: Char, msg: String, host: String) {
-            if (!msg.isEmpty()) {
-                word = msg
-                drawBoard.clear()
-            }
-        }
-
-        override fun onGetOpinion(pre: Char, msg: String, host: String) {
-            when (msg) {
-                "F" -> {
-                    //收到鲜花
-                    showGift(1)
-                }
-                "S" -> {
-                    //收到拖鞋
-                    showGift(2)
-                }
-            }
-        }
-    }*/
+        //更新界面文字
+        word = roomBean.word!!
+        tips = roomBean.wordTips!!
+        val countDown = roomBean.paintCountDown
+        countDown(countDown)
+        showRound(roomBean.roomState)
+    }
 
     private fun showGift(type: Int) {
         val giftDialog = GiftDialog()

@@ -88,7 +88,8 @@ class RoomActivity : AppCompatActivity(), ClientListener {
                 //加入失败
                 ToastUtilK.show(this, "加入房间失败")
                 finish()
-            } else if (msgBean.code == MsgCode.ROOM_JOIN_SUC.code) {
+            } else if (msgBean.code == MsgCode.ROOM_JOIN_SUC.code ||
+                    msgBean.code == MsgCode.ROOM_INFO.code) {
                 //加入成功
                 val json = msgBean.msg
                 val roomBean = Gson().fromJson<RoomBean>(json, RoomBean::class.java)

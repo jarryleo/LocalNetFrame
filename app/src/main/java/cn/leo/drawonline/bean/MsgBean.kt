@@ -5,6 +5,7 @@ import com.google.gson.Gson
 class MsgBean {
     var type: Int = 0 // 消息类型
     var msg: String? = null // 消息内容
+    var senderName: String? = null // 发消息的人
     var id: Int = 0 // 消息id
     var code: Int = 0 // 消息错误码
     var time: Long = 0 // 消息时间

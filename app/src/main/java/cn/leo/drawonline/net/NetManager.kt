@@ -130,4 +130,46 @@ class NetManager {
         sendMsgBean(msgBean)
     }
 
+    /**
+     * 送鲜花
+     */
+    fun sendFlower() {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.GAME_GIFT_FLOWER.code)
+        sendMsgBean(msgBean)
+    }
+
+    /**
+     *  送拖鞋
+     */
+    fun sendSlipper() {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.GAME_GIFT_SLIPPER.code)
+        sendMsgBean(msgBean)
+    }
+
+    /**
+     * 主动获取房间信息
+     */
+    fun getRoomInfo() {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.ROOM_INFO.code)
+        sendMsgBean(msgBean)
+    }
+
+    /**
+     * 发送聊天信息
+     */
+    fun sendChat(str: String) {
+        val msgBean = getMsgBean(MsgType.GAME.getType(), MsgCode.GAME_CHAT.code)
+        msgBean.msg = str
+        sendMsgBean(msgBean)
+    }
+
+    /**
+     * 发送画画数据
+     */
+    fun sendPaint(paint: String?) {
+        val msgBean = getMsgBean(MsgType.PAINT.getType())
+        msgBean.msg = paint
+        sendMsgBean(msgBean)
+    }
+
 }

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.PopupWindow
 import cn.leo.drawonline.R
-import cn.leo.drawonline.bean.Msg
+import cn.leo.drawonline.bean.MsgBean
 import kotlinx.android.synthetic.main.layout_popup_tips.view.*
 
 
@@ -20,9 +20,9 @@ class PopTips : PopupWindow {
         setBackgroundDrawable(null)
     }
 
-    fun showAsDropDown(anchor: View?, msg: Msg) {
+    fun showAsDropDown(anchor: View?, msg: MsgBean) {
         contentView.tvMsg.text = msg.msg
-        if (msg.isAnswer) {
+        if (msg.code == 100) {
             contentView.tvMsg.setTextColor(Color.RED)
         } else {
             contentView.tvMsg.setTextColor(contentView
