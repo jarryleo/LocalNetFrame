@@ -31,6 +31,7 @@ import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_paint.*
 import kotlinx.android.synthetic.main.layout_color_palette.*
+import java.nio.charset.Charset
 
 class PaintActivity : AppCompatActivity(),
         DrawBoard.OnDrawListener,
@@ -355,7 +356,8 @@ class PaintActivity : AppCompatActivity(),
     }
 
     override fun onDataArrived(data: ByteArray?) {
-        val msg = String(data!!)
+        val msg = String(data!!, Charset.forName("utf-8"))
+        if (msg.isEmpty()) return
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.PAINT.getType()) {
             val paint = msgBean.msg

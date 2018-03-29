@@ -21,6 +21,7 @@ import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_setting.*
 import me.khrystal.library.widget.CircularHorizontalMode
+import java.nio.charset.Charset
 
 class SettingActivity : AppCompatActivity(), ClientListener {
     private val netManager = NetManager()
@@ -65,15 +66,15 @@ class SettingActivity : AppCompatActivity(), ClientListener {
                 ToastUtilK.show(this, "请输入昵称")
                 return@setOnClickListener
             }
-            if (MyApplication.getUser() == null) {
-                ToastUtilK.show(this, "没有登录，无法设置")
-                return@setOnClickListener
-            }
             val localName = get(Config.NICKNAME, "")
             if (localName.isEmpty()) {
                 //注册
                 netManager.reg(nickname, iconIndex)
             } else {
+                if (MyApplication.getUser() == null) {
+                    ToastUtilK.show(this, "没有登录，无法设置")
+                    return@setOnClickListener
+                }
                 //修改
                 netManager.update(nickname, iconIndex)
             }
@@ -105,7 +106,8 @@ class SettingActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onDataArrived(data: ByteArray?) {
-        val json = String(data!!)
+        val json = String(data!!, Charset.forName("utf-8"))
+        if (json.isEmpty()) return
         val msgBean = Gson().fromJson<MsgBean>(json, MsgBean::class.java)
         if (msgBean.type == MsgType.SYS.getType()) {
             if (msgBean.code == MsgCode.REG_FAI.code ||

@@ -24,6 +24,7 @@ import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_room_list.*
+import java.nio.charset.Charset
 
 
 class RoomListActivity : AppCompatActivity(), ClientListener {
@@ -46,6 +47,8 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menu_setting -> {
+                handler.removeCallbacks(runnable)
+                swipeRefresh.isRefreshing = false
                 startActivity(Intent(this, SettingActivity::class.java))
                 return true
             }
@@ -57,7 +60,7 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
 
     override fun onRestart() {
         super.onRestart()
-        netManager?.findRoom()
+        netManager.findRoom()
         initData()
     }
 
@@ -129,7 +132,8 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onDataArrived(data: ByteArray?) {
-        val msg = String(data!!)
+        val msg = String(data!!, Charset.forName("utf-8"))
+        if (msg.isEmpty()) return
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.SYS.getType()) {
             if (msgBean.code == MsgCode.LOG_FAI.code) {

@@ -20,7 +20,7 @@ object StringZipUtil {
         val gzip = GZIPOutputStream(out)
         gzip.write(str.toByteArray())
         gzip.close()
-        return out.toString("ISO-8859-1")
+        return out.toString("utf-8")
     }
 
     // 解压缩
@@ -31,7 +31,7 @@ object StringZipUtil {
         }
         val bos = ByteArrayOutputStream()
         val bis = ByteArrayInputStream(str
-                .toByteArray(charset("ISO-8859-1")))
+                .toByteArray(charset("utf-8")))
         val gunZip = GZIPInputStream(bis)
         val buffer = ByteArray(256)
         var n: Int = gunZip.read(buffer)

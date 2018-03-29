@@ -15,6 +15,7 @@ import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room.*
+import java.nio.charset.Charset
 
 class RoomActivity : AppCompatActivity(), ClientListener {
     private var roomId: Int = -1
@@ -46,7 +47,7 @@ class RoomActivity : AppCompatActivity(), ClientListener {
     override fun onRestart() {
         super.onRestart()
         //刷新房间信息
-        netManager.joinRoom(roomId)
+        netManager.getRoomInfo()
     }
 
     private fun initView() {
@@ -81,7 +82,8 @@ class RoomActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onDataArrived(data: ByteArray?) {
-        val msg = String(data!!)
+        val msg = String(data!!, Charset.forName("utf-8"))
+        if (msg.isEmpty()) return
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.GAME.getType()) {
             if (msgBean.code == MsgCode.ROOM_JOIN_FAI.code) {
@@ -101,8 +103,8 @@ class RoomActivity : AppCompatActivity(), ClientListener {
                 finish()
             } else if (msgBean.code == MsgCode.GAME_START_FAIL.code) {
                 //游戏开始失败
-                val msg = msgBean.msg
-                ToastUtilK.show(this, msg!!)
+                val msgStr = msgBean.msg
+                ToastUtilK.show(this, msgStr!!)
             }
         }
     }

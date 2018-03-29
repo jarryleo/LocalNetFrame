@@ -6,6 +6,7 @@ import cn.leo.drawonline.bean.UserBean
 import cn.leo.drawonline.constant.MsgCode
 import cn.leo.drawonline.constant.MsgType
 import cn.leo.nio_client.core.Client
+import java.nio.charset.Charset
 
 /**
  * Created by Leo on 2018/3/26.
@@ -26,7 +27,7 @@ class NetManager {
      * 发送json数据
      */
     private fun sendJsonMsg(json: String) {
-        Client.sendMsg(json.toByteArray())
+        Client.sendMsg(json.toByteArray(Charset.forName("utf-8")))
     }
 
     /**
