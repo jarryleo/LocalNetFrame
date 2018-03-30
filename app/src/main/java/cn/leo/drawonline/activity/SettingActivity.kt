@@ -102,12 +102,15 @@ class SettingActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onIntercept() {
-        ToastUtilK.show(this, "被服务器拒绝")
+        ToastUtilK.show(this, "服务器断开连接")
     }
 
     override fun onDataArrived(data: ByteArray?) {
         val json = String(data!!, Charset.forName("utf-8"))
         if (json.isEmpty()) return
+        if (json.first() == 'P') {
+            return
+        }
         val msgBean = Gson().fromJson<MsgBean>(json, MsgBean::class.java)
         if (msgBean.type == MsgType.SYS.getType()) {
             if (msgBean.code == MsgCode.REG_FAI.code ||

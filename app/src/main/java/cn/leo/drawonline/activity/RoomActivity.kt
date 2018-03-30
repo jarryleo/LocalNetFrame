@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import cn.leo.drawonline.R
 import cn.leo.drawonline.adapter.UserListAdapter
 import cn.leo.drawonline.bean.MsgBean
@@ -78,12 +79,15 @@ class RoomActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onIntercept() {
-
+        ToastUtilK.show(this, "服务器断开连接")
     }
 
     override fun onDataArrived(data: ByteArray?) {
         val msg = String(data!!, Charset.forName("utf-8"))
         if (msg.isEmpty()) return
+        if (msg.first() == 'P') {
+            return
+        }
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.GAME.getType()) {
             if (msgBean.code == MsgCode.ROOM_JOIN_FAI.code) {
@@ -94,6 +98,7 @@ class RoomActivity : AppCompatActivity(), ClientListener {
                     msgBean.code == MsgCode.ROOM_INFO.code) {
                 //加入成功
                 val json = msgBean.msg
+                Log.e("roomJson", json)
                 val roomBean = Gson().fromJson<RoomBean>(json, RoomBean::class.java)
                 refreshUsers(roomBean)
             } else if (msgBean.code == MsgCode.GAME_START_SUC.code) {

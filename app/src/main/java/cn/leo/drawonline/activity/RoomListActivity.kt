@@ -128,12 +128,15 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
     }
 
     override fun onIntercept() {
-        ToastUtilK.show(this, "被服务器拒绝")
+        ToastUtilK.show(this, "服务器断开连接")
     }
 
     override fun onDataArrived(data: ByteArray?) {
         val msg = String(data!!, Charset.forName("utf-8"))
         if (msg.isEmpty()) return
+        if (msg.first() == 'P') {
+            return
+        }
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.SYS.getType()) {
             if (msgBean.code == MsgCode.LOG_FAI.code) {
@@ -147,6 +150,7 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
                 MyApplication.setUser(userBean)
             }
         } else if (msgBean.type == MsgType.GAME.getType()) {
+            swipeRefresh.isRefreshing = false
             if (msgBean.code == MsgCode.ROOM_LIST.code) {
                 //获取房间列表
                 val json = msgBean.msg

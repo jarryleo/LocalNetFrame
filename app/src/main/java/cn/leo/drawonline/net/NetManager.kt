@@ -168,9 +168,7 @@ class NetManager {
      * 发送画画数据
      */
     fun sendPaint(paint: String?) {
-        val msgBean = getMsgBean(MsgType.PAINT.getType())
-        msgBean.msg = paint
-        sendMsgBean(msgBean)
+        Client.sendMsg("P".plus(paint).toByteArray(Charset.forName("utf-8")))
     }
 
 }

@@ -25,7 +25,6 @@ import cn.leo.drawonline.utils.SoundsUtil
 import cn.leo.drawonline.utils.get
 import cn.leo.drawonline.utils.put
 import cn.leo.drawonline.view.*
-import cn.leo.localnet.utils.StringZipUtil
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
@@ -152,7 +151,7 @@ class PaintActivity : AppCompatActivity(),
             }
             in 6L..55L -> {
                 //发送第二个提示
-                tips = "${word.length}个字,$tips"
+                tips = "${word.length}个字,${this.tips}"
             }
             5L -> {
                 //发送答案
@@ -164,7 +163,7 @@ class PaintActivity : AppCompatActivity(),
             tvTitle.text = word
         } else {
             //展示提示
-            tvTitle.text = tips.substring(1)
+            tvTitle.text = tips
         }
         //倒计时
         val time = sec - 5
@@ -339,8 +338,8 @@ class PaintActivity : AppCompatActivity(),
 
     //发送画板数据
     override fun onDraw(code: String) {
-        val compress = StringZipUtil.compress(code)
-        netManager.sendPaint(compress)
+        //val compress = StringZipUtil.compress(code)
+        netManager.sendPaint(code)
     }
 
     override fun onConnectSuccess() {
@@ -352,17 +351,21 @@ class PaintActivity : AppCompatActivity(),
     }
 
     override fun onIntercept() {
-
+        ToastUtilK.show(this, "服务器断开连接")
     }
 
     override fun onDataArrived(data: ByteArray?) {
         val msg = String(data!!, Charset.forName("utf-8"))
         if (msg.isEmpty()) return
+        if (msg.first() == 'P') {
+            drawBoard.setBitmapCode(msg.substring(1))
+            return
+        }
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
         if (msgBean.type == MsgType.PAINT.getType()) {
             val paint = msgBean.msg
-            val uncompress = StringZipUtil.uncompress(paint)
-            drawBoard.setBitmapCode(uncompress!!)
+            //val uncompress = StringZipUtil.uncompress(paint)
+            drawBoard.setBitmapCode(paint!!)
         } else if (msgBean.type == MsgType.GAME.getType()) {
             if (msgBean.code == MsgCode.ROOM_INFO.code ||
                     msgBean.code == MsgCode.ROOM_JOIN_SUC.code) {
