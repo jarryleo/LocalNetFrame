@@ -9,6 +9,7 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -188,10 +189,8 @@ class PaintActivity : AppCompatActivity(),
     //下一个开始复位数据
     private fun nextPlayer() {
         tvTitle.text = resources.getText(R.string.app_name)
-        isMePaint = false
         countDownTimer?.cancel()
         hideAnswer()
-        checkPlayer()
         refreshUsers()
         drawBoard.clear()
         hideColorLens()
@@ -213,8 +212,6 @@ class PaintActivity : AppCompatActivity(),
             //播放提示音
             soundsUtil?.playSound(R.raw.gogogo, false)
         }
-        //画板锁定和解锁
-        drawBoard.lock = !isMePaint
     }
 
     //批量设置点击事件
@@ -287,7 +284,7 @@ class PaintActivity : AppCompatActivity(),
         } else {
             showAnswer(word)
         }
-        handler.postDelayed({ nextPlayer() }, 5000)
+        //handler.postDelayed({ nextPlayer() }, 5000)
     }
 
     //刷新用户分数
@@ -338,8 +335,9 @@ class PaintActivity : AppCompatActivity(),
 
     //发送画板数据
     override fun onDraw(code: String) {
-        //val compress = StringZipUtil.compress(code)
-        netManager.sendPaint(code)
+        if (isMePaint) {
+            netManager.sendPaint(code)
+        }
     }
 
     override fun onConnectSuccess() {
@@ -358,7 +356,9 @@ class PaintActivity : AppCompatActivity(),
         val msg = String(data!!, Charset.forName("utf-8"))
         if (msg.isEmpty()) return
         if (msg.first() == 'P') {
-            drawBoard.setBitmapCode(msg.substring(1))
+            val code = msg.substring(1)
+            Log.d("paint", code)
+            drawBoard.setBitmapCode(code)
             return
         }
         val msgBean = Gson().fromJson<MsgBean>(msg, MsgBean::class.java)
@@ -397,6 +397,8 @@ class PaintActivity : AppCompatActivity(),
             isMePaint = switch
             checkPlayer()
         }
+        //画板锁定和解锁
+        drawBoard.lock = !isMePaint
         //更新界面文字
         word = roomBean.word!!
         tips = roomBean.wordTips!!
