@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 public class ClientCore extends Thread {
     private static final int INT_LENGTH = 4; // 一个int 占4个byte
-    private static final int BUFFER_CACHE = 1024; // 缓冲区大小
+    private static final int BUFFER_CACHE = 1024 * 64; // 缓冲区大小
     private static final int TIME_OUT = 3000; // 频道遍历超时时间
     private String mIp; // 服务器IP地址
     private int mPort; // 服务器端口号
