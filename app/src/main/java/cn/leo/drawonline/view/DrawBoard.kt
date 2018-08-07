@@ -174,15 +174,14 @@ class DrawBoard : View {
         } else {
             setBackgroundDrawable(BitmapDrawable(null, mBitmap))
         }
-        if (System.currentTimeMillis() - dis > 1000) {
-            getDraw()
-        }
+        getDraw()
     }
 
     /**
      *取出编码并传输
      */
     private fun getDraw() {
+        if (System.currentTimeMillis() - dis < 1000) return
         dis = System.currentTimeMillis()
         Log.e("codeSize", "=${bitmapCode.length}")
         if (onDrawListener != null && !lock) {

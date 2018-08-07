@@ -18,7 +18,7 @@ class MyApplication : Application() {
         super.onCreate()
         //初始化即时通讯服务
         Client.init(this, "118.89.48.219", 25627)
-        //Client.init(this, "10.0.2.2", 25627)
+//        Client.init(this, "10.0.2.2", 25627)
         //初始化bugly
         Bugly.init(applicationContext, Config.buglyId, false)
         doHeart()

@@ -1,1 +1,1 @@
-include ':app', ':library_CircleRecyclerView', ':nio_client'
+include ':app', ':library_CircleRecyclerView', ':aio_client'

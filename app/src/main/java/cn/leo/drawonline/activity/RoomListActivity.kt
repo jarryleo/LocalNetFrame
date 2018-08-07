@@ -19,6 +19,7 @@ import cn.leo.drawonline.constant.MsgType
 import cn.leo.drawonline.net.NetManager
 import cn.leo.drawonline.utils.Config
 import cn.leo.drawonline.utils.get
+import cn.leo.drawonline.utils.put
 import cn.leo.localnet.utils.ToastUtilK
 import cn.leo.nio_client.core.ClientListener
 import com.google.gson.Gson
@@ -142,6 +143,10 @@ class RoomListActivity : AppCompatActivity(), ClientListener {
             if (msgBean.code == MsgCode.LOG_FAI.code) {
                 //登录失败
                 ToastUtilK.show(this, "登录失败")
+                put(Config.ICON, 3)
+                put(Config.NICKNAME, "")
+                startActivity(Intent(this, SettingActivity::class.java))
+                finish()
             } else if (msgBean.code == MsgCode.LOG_SUC.code) {
                 //登录成功
                 logSuccess()

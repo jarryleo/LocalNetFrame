@@ -48,8 +48,13 @@ class SettingActivity : AppCompatActivity(), ClientListener {
             iconIndex = index
             iv_head.setImageResource(icons[index])
         }
-        val ic = get(Config.ICON, 3)
+        var ic = get(Config.ICON, 3)
         val nickname = get(Config.NICKNAME, "")
+        ic = if (ic < 0 || ic > icons.size) {
+            3
+        } else {
+            ic
+        }
         val icon = icons[ic]
         iv_head.setImageResource(icon)
         et_nickname.setText(nickname)

@@ -33,10 +33,10 @@ public class Client implements Application.ActivityLifecycleCallbacks {
     private Client(Application application) {
         mApplication = application;
         mService = new Intent(application, ClientService.class);
-        Intent job = new Intent(application, ClientJob.class);
+        //Intent job = new Intent(application, ClientJob.class);
         mConn = new MyConnection();
         application.startService(mService);//开启即时通讯服务
-        application.startService(job);//开启定时唤醒服务
+        //application.startService(job);//开启定时唤醒服务
         application.bindService(mService, mConn, Context.BIND_ABOVE_CLIENT);
         application.registerActivityLifecycleCallbacks(this);
     }

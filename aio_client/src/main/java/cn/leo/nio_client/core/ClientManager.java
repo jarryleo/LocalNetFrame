@@ -30,7 +30,7 @@ public class ClientManager implements ClientListener {
         mSendHandler = new Handler(mSendThread.getLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                client.sendMsg((byte[]) msg.obj);
+                client.sendMsg((byte[]) msg.obj, (short) 0);
             }
         };
     }
@@ -47,8 +47,7 @@ public class ClientManager implements ClientListener {
     @Override
     public void onIntercept() {
         status = STATUS_OFFLINE;
-        mHandler.removeCallbacks(reConnect);
-        mHandler.postDelayed(reConnect, 1000);
+        reConnect();
         for (final ClientListener listener : mListeners) {
             mHandler.post(new Runnable() {
                 @Override
@@ -88,6 +87,10 @@ public class ClientManager implements ClientListener {
     @Override
     public void onConnectFailed() {
         status = STATUS_OFFLINE;
+        reConnect();
+    }
+
+    private void reConnect() {
         mHandler.removeCallbacks(reConnect);
         mHandler.postDelayed(reConnect, 1000);
         for (final ClientListener listener : mListeners) {

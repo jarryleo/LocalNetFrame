@@ -2,7 +2,6 @@ package cn.leo.nio_client.core;
 
 import android.os.SystemClock;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,18 +9,25 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
+
+import cn.leo.aio.header.PacketFactory;
+import cn.leo.aio.utils.Constant;
+import cn.leo.nio_client.other.Heart;
+import cn.leo.nio_client.other.Receiver;
 
 
 public class ClientCore extends Thread {
-    private static final int INT_LENGTH = 4; // 一个int 占4个byte
-    private static final int BUFFER_CACHE = 1024 * 64; // 缓冲区大小
-    private static final int TIME_OUT = 3000; // 频道遍历超时时间
+    private static final int BUFFER_CACHE = Constant.packetSize; // 缓冲区大小
+    private static final long TIME_OUT = Constant.heartTimeOut; // 频道遍历超时时间
     private String mIp; // 服务器IP地址
     private int mPort; // 服务器端口号
     private ClientListener mListener; // 接口回调
     private Selector selector;
-    private ByteBuffer buffer;
+    public ByteBuffer buffer;
     private SocketChannel socketChannel;
+    private Receiver mReceiver;
+    private long lastHeartStamp;
 
     public static ClientCore startClient(String ip, int port, ClientListener listener) {
 
@@ -34,7 +40,8 @@ public class ClientCore extends Thread {
         mIp = ip;
         mPort = port;
         mListener = listener;
-        buffer = ByteBuffer.allocate(BUFFER_CACHE);
+        buffer = ByteBuffer.allocate(Constant.packetSize);
+        mReceiver = new Receiver(mListener);
         try {
             selector = Selector.open(); // 开启选择器
         } catch (IOException e) {
@@ -67,10 +74,11 @@ public class ClientCore extends Thread {
                     mListener.onConnectSuccess();// 已连接
                     executeSelector(); //进入消息检测循环
                 }
+                new Heart(this);//开启心跳
             }
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally { //走到这里表示连接服务器失败
             if (mListener != null) {
                 mListener.onConnectFailed();// 连接失败
@@ -110,35 +118,15 @@ public class ClientCore extends Thread {
      *
      * @param bytes 数据字节
      */
-    public void sendMsg(byte[] bytes) {
+    public void sendMsg(byte[] bytes, short cmd) {
 
         try {
             if (socketChannel.isConnected()) { // 如果连接成功，则循环发送消息
-                int length = bytes.length; // 要发送数据的长度，如果长度大于缓冲区就分段发送
-                int start = 0; // 分段起始点
-                while (length > 0) {
-                    int part = 0; // 每段大小
-                    if (length >= (BUFFER_CACHE - INT_LENGTH)) {
-                        part = (BUFFER_CACHE - INT_LENGTH);
-                    } else {
-                        part = length % (BUFFER_CACHE - INT_LENGTH); // 最后一段大小，
-                    }
-                    byte[] b = new byte[part]; // 分段数组
-
-                    System.arraycopy(bytes, start, b, 0, part);// 复制分段数据
-                    // 写入数据内容
-                    buffer.clear(); // 清除缓冲区
-                    if (start == 0) {
-                        buffer.putInt(length); // 第一次分段头写入总数据长度
-                    }
-                    buffer.put(b);// 把字符串的字节数据写入缓冲区
-                    buffer.flip();// 重置缓冲区limit
-                    while (buffer.hasRemaining()) {
-                        socketChannel.write(buffer); // 缓冲区数据写入频道
-                    }
-                    start += part;
-                    length -= part;
+                List<ByteBuffer> byteBuffers = PacketFactory.INSTANCE.encodePacketBuffer(bytes, cmd);
+                for (ByteBuffer byteBuffer : byteBuffers) {
+                    socketChannel.write(byteBuffer); // 缓冲区数据写入频道
                 }
+                lastHeartStamp = System.currentTimeMillis();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,52 +141,19 @@ public class ClientCore extends Thread {
      * 处理读取数据
      *
      * @param key key
-     * @throws IOException
      */
-    private void handleRead(SelectionKey key) throws IOException {
+    private void handleRead(SelectionKey key) {
+        buffer.clear();
         SocketChannel sc = (SocketChannel) key.channel(); // 获取key的频道
-        ByteBuffer headBuffer = ByteBuffer.allocate(INT_LENGTH); // 1个int值的头字节存储数据长度
-        ByteBuffer buf = (ByteBuffer) key.attachment(); // 获取key的附加对象（因为附加的缓冲区）
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        while (sc.read(headBuffer) == INT_LENGTH) {
-            int dataLength = headBuffer.getInt(0); // 读取数据头部4个字节的int值表述的数据长度
-            headBuffer.clear();
-            byte[] bytes;
-            int receiveLength = 0; // 已接受长度
-            int bytesRead = 0;// 读取频道内的数据到缓冲区
-            while (receiveLength < dataLength) { //根据头部数据长度把所有数据读入内存输出流
-                if (dataLength - receiveLength < buf.capacity()) {
-                    buf.limit(dataLength - receiveLength); //调整缓冲区大小为剩余字节数
-                }
-                bytesRead = sc.read(buf); //读取数据到缓冲区
-                buf.flip();// 重置缓冲区limit
-
-                if (bytesRead < 1) { // 读取不到数据退出
-                    break;
-                }
-
-                if (receiveLength + bytesRead > dataLength) { // 如果接受的数据大于指定长度
-                    bytes = new byte[dataLength - receiveLength]; // 则新的数据为剩下数据长度
-                } else {
-                    bytes = new byte[bytesRead]; // 否则为读取长度
-                }
-                buf.get(bytes); //从缓冲区读取数据到数组
-                baos.write(bytes); //写入内存输出流
-                buf.clear();// 清空缓冲区
-                receiveLength += bytes.length; // 已读取的数据长度
+        int len;
+        try {
+            while ((len = sc.read(buffer)) > 0) {
+                mReceiver.completed(len, this);
             }
-            if (mListener != null) {
-                mListener.onDataArrived(baos.toByteArray());
-            }
-            baos.reset(); //重置内存输出流
-            if (bytesRead == -1) { // 服务器断开连接，关闭频道
-                if (mListener != null) {
-                    mListener.onIntercept();
-                }
-                close();
-            }
+        } catch (Exception e) {
+            mReceiver.failed(e, this);
         }
+
 
     }
 
@@ -220,8 +175,16 @@ public class ClientCore extends Thread {
 
     }
 
+    //心跳
+    public void heart() {
+        if (System.currentTimeMillis() - lastHeartStamp > Constant.heartTimeOut / 2
+                && selector != null) {
+            sendMsg(String.valueOf(System.currentTimeMillis()).getBytes(), Constant.heartCmd);
+        }
+    }
+
     // 异常关闭连接
-    private void close() {
+    public void close() {
         try {
             if (selector != null) {
                 selector.close();
