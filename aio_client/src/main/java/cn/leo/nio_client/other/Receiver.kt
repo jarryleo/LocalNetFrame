@@ -43,6 +43,7 @@ class Receiver(var clientListener: ClientListener) {
 
     fun failed(exc: Throwable?, client: ClientCore?) {
         exc!!.printStackTrace()
+        clientListener.onIntercept()
         client?.close()
     }
 }
