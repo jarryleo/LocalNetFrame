@@ -16,6 +16,7 @@ object StringZipUtil {
         val out = ByteArrayOutputStream()
         val gzip = GZIPOutputStream(out)
         gzip.write(str.toByteArray())
+        gzip.flush()
         gzip.close()
         return out.toByteArray()
     }
