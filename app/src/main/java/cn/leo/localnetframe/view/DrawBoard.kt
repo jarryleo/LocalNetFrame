@@ -1,18 +1,15 @@
 package cn.leo.localnetframe.view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import cn.leo.localnetframe.R
+import cn.leo.localnetframe.utils.DouglasPeuker
 
 /**
  * Created by Leo on 2017/11/1.
@@ -43,6 +40,8 @@ class DrawBoard : View {
     private var startY: Float = 0f
     private var dis: Long = 0
     private var mWidth: Int = 0
+    //一笔曲线线段集合点
+    private val lines = mutableListOf<PointF>()
 
 
     //构造
@@ -60,7 +59,7 @@ class DrawBoard : View {
         mStrokeWidth = 3.0f * density
         mPaint.color = mColor
         mPaint.strokeWidth = mStrokeWidth * scale
-        mPaint.style = Paint.Style.STROKE
+        mPaint.style = Paint.Style.FILL
         mPaint.strokeCap = Paint.Cap.ROUND
         //setBackgroundColor(Color.WHITE)
     }
@@ -112,10 +111,10 @@ class DrawBoard : View {
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (lock) return true
-        when (event!!.action) {
+        when (event?.action) {
             MotionEvent.ACTION_DOWN -> down(event.x, event.y)
             MotionEvent.ACTION_MOVE -> move(event.x, event.y)
-            MotionEvent.ACTION_UP -> getDraw()
+            MotionEvent.ACTION_UP -> getPoints()
         }
         return true
     }
@@ -126,13 +125,8 @@ class DrawBoard : View {
     private fun down(x: Float, y: Float) {
         startX = x
         startY = y
-        draw(x + mStrokeWidth, y)
-        //动作编码
-        bitmapCode.append("D")
-                .append(x.toInt())
-                .append(",")
-                .append(y.toInt())
-                .append("|")
+        draw(x, y)
+        lines.add(PointF(x, y))
     }
 
     /**
@@ -142,12 +136,42 @@ class DrawBoard : View {
         draw(x, y)
         startX = x
         startY = y
-        //动作编码
-        bitmapCode.append("M")
-                .append(x.toInt())
-                .append(",")
-                .append(y.toInt())
-                .append("|")
+        lines.add(PointF(x, y))
+    }
+
+
+    private fun getPoints() {
+        //曲线抽稀
+        val size = lines.size
+        val points = DouglasPeuker.getPoints(lines, 2f * density)
+        Log.d("======", "抽稀前的点个数：$size - 抽稀后的点个数：${points.size} = 减少 ${size - points.size} 个")
+        points.forEachIndexed { index, p ->
+            if (index == 0) {
+                bitmapCode.append("D")
+                        .append(p.x.toInt())
+                        .append(",")
+                        .append(p.y.toInt())
+                        .append("|")
+            } else {
+                bitmapCode.append("M")
+                        .append(p.x.toInt())
+                        .append(",")
+                        .append(p.y.toInt())
+                        .append("|")
+            }
+        }
+        lines.clear()
+    }
+
+    /**
+     *取出编码并传输
+     */
+    private fun getDraw() {
+        dis = System.currentTimeMillis()
+        Log.e("codeSize", "=${bitmapCode.length}")
+        if (onDrawListener != null && !lock) {
+            (onDrawListener as OnDrawListener).onDraw(bitmapCode.toString())
+        }
     }
 
     /**
@@ -161,7 +185,11 @@ class DrawBoard : View {
      * 绘制图案
      */
     private fun draw(x: Float, y: Float) {
-        mCanvas.drawLine(startX, startY, x, y, mPaint)
+        if (x == startX && y == startY) {
+            mCanvas.drawCircle(x, y, mStrokeWidth * scale / 2, mPaint)
+        } else {
+            mCanvas.drawLine(startX, startY, x, y, mPaint)
+        }
         show()
     }
 
@@ -177,17 +205,6 @@ class DrawBoard : View {
         }
         if (System.currentTimeMillis() - dis > 1000) {
             getDraw()
-        }
-    }
-
-    /**
-     *取出编码并传输
-     */
-    private fun getDraw() {
-        dis = System.currentTimeMillis()
-        Log.e("codeSize", "=${bitmapCode.length}")
-        if (onDrawListener != null && !lock) {
-            (onDrawListener as OnDrawListener).onDraw(bitmapCode.toString())
         }
     }
 
@@ -254,8 +271,8 @@ class DrawBoard : View {
                                 val split = point.split(",")
                                 startX = split[0].toFloat()
                                 startY = split[1].toFloat()
-                                mCanvas.drawLine(startX * scale, startY * scale,
-                                        (startX + mStrokeWidth) * scale, startY * scale, mPaint)
+                                mCanvas.drawCircle(startX * scale, startY * scale,
+                                        mStrokeWidth * scale / 2, mPaint)
                             }
                             'M' -> {
                                 val point = it.substring(1)
